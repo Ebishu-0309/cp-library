@@ -507,6 +507,7 @@ struct Polygon {
     Polygon(const vector<Vec2>& vec) : n(static_cast<int>(vec.size())), vertex(vec) {}
 
     Line side(size_t index) const { return Line(vertex[index], vertex[(index + 1) % n]); }
+    Line edge(size_t index) const { return side(index); }
 
     Polygon& moveBy(const Vec2& v) {
         for (Vec2& vec : vertex) vec += v;
@@ -551,6 +552,14 @@ struct Polygon {
         }
 
         return 0.5 * fabs(sum);
+    }
+
+    double perimeter() const {
+        double len = 0.0;
+        for (int i = 0; i < n; ++i) {
+            len += side(i).length();
+        }
+        return len;
     }
 
     value_type commonArea(const Circle& circle) const {
