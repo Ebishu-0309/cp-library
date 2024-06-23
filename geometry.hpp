@@ -164,11 +164,14 @@ void argument_sort(vector<Vector2D<T>>& vec, const Vector2D<T>& center = Vector2
 
 template <typename T>
 vector<Vector2D<T>> convex_hull(vector<Vector2D<T>> points) {
-    int n = points.size(), k = 0;
-    vector<Vector2D<T>> res(n * 2);
-
     sort(points.begin(), points.end());
     points.erase(unique(points.begin(), points.end()), points.end());
+
+    int n = points.size(), k = 0;
+
+    if (n <= 2) return points;
+
+    vector<Vector2D<T>> res(n * 2);
 
     for (int i = 0; i < n; ++i) {
         while (k > 1 && sgn((res[k - 1] - res[k - 2]).cross(points[i] - res[k - 1])) <= 0) k--;
@@ -663,7 +666,9 @@ struct Polygon {
         return is;
     }
 };
+}  // namespace geometry
 
+namespace geometry {
 // x座標でsort済み
 floating_point_type distance_closest_pair(vector<Vec2>& points, int left, int right) {
     if (right - left <= 1) return 1e20;
