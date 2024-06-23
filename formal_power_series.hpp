@@ -438,7 +438,7 @@ struct FormalPowerSeries : vector<atcoder::static_modint<MOD>> {
         a.resize((n + !odd) >> 1);
     }
 
-    constexpr unsigned int bitceil(int n) { return atcoder::internal::bit_ceil((unsigned int)(2 * n - 1)); }
+    static constexpr unsigned int coeff_bitceil(int n) { return atcoder::internal::bit_ceil((unsigned int)(2 * n - 1)); }
 
     // [x^k] (p/q)
     static Fp coeff(vector<mint> p, vector<mint> q, long long k) {
@@ -446,7 +446,7 @@ struct FormalPowerSeries : vector<atcoder::static_modint<MOD>> {
         {
             const int n0 = q.size();
             p.resize(n0);
-            const int z = bitceil(n0);
+            const int z = coeff_bitceil(n0);
             p.resize(z);
             q.resize(z);
             q_dft = q;
@@ -454,7 +454,7 @@ struct FormalPowerSeries : vector<atcoder::static_modint<MOD>> {
         }
         while (k > 0) {
             const int n = q.size();
-            const int z = bitceil(n);
+            const int z = coeff_bitceil(n);
 
             p.resize(z);
             q.resize(z);
