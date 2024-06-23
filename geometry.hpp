@@ -591,7 +591,7 @@ struct Polygon {
 
             const vector<Vec2> vec2{a, vec1.front(), vec1.back(), b};
 
-            for (int i = 0; i + 1 < vec2.size(); ++i) {
+            for (int i = 0, s = vec2.size(); i + 1 < s; ++i) {
                 res += self(self, c, vec2[i], vec2[i + 1]);
             }
 
