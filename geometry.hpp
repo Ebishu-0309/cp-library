@@ -21,7 +21,11 @@ constexpr floating_point_type Pi = 3.141592653589793;
 constexpr floating_point_type operator"" _deg(floating_point_type deg) { return static_cast<floating_point_type>(deg * Pi / 180.0); }
 constexpr floating_point_type operator"" _deg(unsigned long long deg) { return static_cast<floating_point_type>(deg * Pi / 180.0); }
 
-template <typename T>
+template <typename T, enable_if_t<is_integral_v<T>, nullptr_t> = nullptr>
+constexpr int sgn(T a) noexcept {
+    return (a < 0 ? -1 : (a > 0 ? 1 : 0));
+}
+template <typename T, enable_if_t<is_floating_point_v<T>, nullptr_t> = nullptr>
 constexpr int sgn(T a) noexcept {
     return (a < -EPS ? -1 : (a > EPS ? +1 : 0));
 }
