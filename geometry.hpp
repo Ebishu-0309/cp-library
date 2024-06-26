@@ -262,7 +262,10 @@ struct Line {
     }
 
     optional<Vec2> intersectsAt(const Line& line) const {
-        if (sgn(vector().cross(line.vector())) == 0) return nullopt;
+        if (sgn(vector().cross(line.vector())) == 0) {
+            if (sgn(line.distanceFromSq(begin)) == 0) return begin;
+            return nullopt;
+        }
 
         return begin + vector() * fabs((line.end - begin).cross(line.vector()) / vector().cross(line.vector()));
     }
