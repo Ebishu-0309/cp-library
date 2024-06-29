@@ -676,6 +676,78 @@ struct Polygon {
 }  // namespace geometry
 
 namespace geometry {
+template <typename T>
+struct Vector3D {
+    using value_type = T;
+    T x, y, z;
+
+    Vector3D() = default;
+    constexpr Vector3D(T x, T y, T z) noexcept : x(x), y(y), z(z) {}
+
+    constexpr bool operator<(const Vector3D& v) const noexcept {
+        if (!same(x, v.x)) return x < v.x;
+        if (!same(y, v.y)) return y < v.y;
+        return z < v.z;
+    }
+    constexpr bool operator>(const Vector3D& v) const noexcept { return v < *this; }
+    constexpr bool operator==(const Vector3D& v) const noexcept { return same(x, v.x) && same(y, v.y) && same(z, v.z); }
+    constexpr bool operator!=(const Vector3D& v) const noexcept { return !(*this == v); }
+
+    constexpr Vector3D operator+() const noexcept { return *this; }
+    constexpr Vector3D operator-() const noexcept { return {-x, -y, -z}; }
+
+    constexpr Vector3D operator+(const Vector3D& v) const noexcept { return {x + v.x, y + v.y, z + v.z}; }
+    constexpr Vector3D operator-(const Vector3D& v) const noexcept { return {x - v.x, y - v.y, z - v.z}; }
+    constexpr Vector3D operator*(T s) const noexcept { return {x * s, y * s, z * s}; }
+    constexpr Vector3D operator/(T s) const noexcept { return {x / s, y / s, z / s}; }
+
+    constexpr Vector3D& operator+=(const Vector3D& v) noexcept {
+        x += v.x;
+        y += v.y;
+        z += v.z;
+        return *this;
+    }
+    constexpr Vector3D& operator-=(const Vector3D& v) noexcept {
+        x -= v.x;
+        y -= v.y;
+        z -= v.z;
+        return *this;
+    }
+    constexpr Vector3D& operator*=(T s) noexcept {
+        x *= s;
+        y *= s;
+        z *= s;
+        return *this;
+    }
+    constexpr Vector3D& operator/=(T s) noexcept {
+        x /= s;
+        y /= s;
+        z /= s;
+        return *this;
+    }
+
+    constexpr bool isZero() const noexcept { return x == T(0) && y == T(0) && z == T(0); }
+    bool hasNan() const { return isnan(x) || isnan(y) || isnan(z); }
+
+    constexpr T dot(const Vector3D& v) const noexcept { return x * v.x + y * v.y + z * v.z; }
+    constexpr Vector3D cross(const Vector3D& v) const noexcept { return {y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x}; }
+
+    constexpr T lengthSq() const noexcept { return dot(*this); }
+    floating_point_type length() const { return std::sqrt(lengthSq()); }
+
+    floating_point_type distanceFrom(const Vector3D& v) const { return (v - *this).length(); }
+    constexpr T distanceFromSq(const Vector3D& v) const noexcept { return (v - *this).lengthSq(); }
+
+    Vector3D normalized() const { return *this / length(); }
+    Vector3D& normalize() { return *this /= length(); }
+
+    constexpr friend Vector3D operator*(T s, const Vector3D& v) noexcept { return {s * v.x, s * v.y, s * v.z}; }
+    friend istream& operator>>(istream& is, Vector3D& v) { return is >> v.x >> v.y >> v.z; }
+    friend ostream& operator<<(ostream& os, const Vector3D& v) { return os << "(" << v.x << ", " << v.y << ", " << v.z << ")"; }
+};
+}  // namespace geometry
+
+namespace geometry {
 // x座標でsort済み
 floating_point_type distance_closest_pair(vector<Vec2>& points, int left, int right) {
     if (right - left <= 1) return 1e20;
