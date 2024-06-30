@@ -4,17 +4,17 @@ class DynamicSegtree {
     static_assert(std::is_convertible_v<decltype(e), std::function<S()>>, "e must work as S()");
 
    public:
-    DynamicSegtree(int n_) : n(n_), root(nullptr) {}
+    DynamicSegtree(long long lmin, long long rmax) : lmin(lmin), rmax(rmax), root(nullptr) {}
 
     ~DynamicSegtree() { del(root); }
 
-    void set(int p, S x) { set(root, 0, n, p, x); }
-    S get(int p) { return get(root, 0, n, p); }
-    S prod(int l, int r) { return prod(root, 0, n, l, r); }
+    void set(long long p, S x) { set(root, lmin, rmax, p, x); }
+    S get(long long p) { return get(root, lmin, rmax, p); }
+    S prod(long long l, long long r) { return prod(root, lmin, rmax, l, r); }
 
    private:
     struct Node;
-    using Node_t = Node *;
+    using Node_t = Node*;
     struct Node {
         S val;
         Node_t l, r;
@@ -24,17 +24,17 @@ class DynamicSegtree {
 
     S get(Node_t t) { return (t == nullptr ? e() : t->val); }
 
-    int n;
+    long long lmin, rmax;
     Node_t root;
 
-    void set(Node_t &t, int l, int r, int p, S x) {
+    void set(Node_t& t, long long l, long long r, long long p, S x) {
         if (t == nullptr) t = new Node(e());
         if (l + 1 == r) {
             t->val = x;
             return;
         }
 
-        int m = (l + r) >> 1;  // [l, m) [m, r)
+        long long m = (l + r) >> 1;  // [l, m) [m, r)
         if (p < m)
             set(t->l, l, m, p, x);
         else
@@ -43,23 +43,23 @@ class DynamicSegtree {
         t->val = op(get(t->l), get(t->r));
     }
 
-    S get(Node_t t, int l, int r, int p) {
+    S get(Node_t t, long long l, long long r, long long p) {
         if (t == nullptr) return e();
         if (l + 1 == r) return t->val;
-        int m = (l + r) >> 1;
+        long long m = (l + r) >> 1;
         if (p < m) return get(t->l, l, m, p);
         return get(t->r, m, r, p);
     }
 
     // query: [l, r), now: [a, b)
-    S prod(Node_t t, int a, int b, int l, int r) {
+    S prod(Node_t t, long long a, long long b, long long l, long long r) {
         if (t == nullptr || b <= l || r <= a) return e();
         if (l <= a && b <= r) return t->val;
-        int c = (a + b) >> 1;
+        long long c = (a + b) >> 1;
         return op(prod(t->l, a, c, l, r), prod(t->r, c, b, l, r));
     }
 
-    void del(Node_t &t) {
+    void del(Node_t& t) {
         if (t == nullptr) return;
         del(t->l);
         del(t->r);
