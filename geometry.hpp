@@ -290,13 +290,6 @@ constexpr bool intersect(const Segment& a, const Segment& b) {
     return ccw(a.begin, a.end, b.begin) * ccw(a.begin, a.end, b.end) <= 0 && ccw(b.begin, b.end, a.begin) * ccw(b.begin, b.end, a.end) <= 0;
 }
 
-floating_point_type distance(const Segment& a, const Vec2& v) {
-    if (sgn(a.vector().dot(v - a.begin)) < 0 || sgn((-a.vector()).dot(v - a.end)) < 0) {
-        return min(v.distanceFrom(a.begin), v.distanceFrom(a.end));
-    }
-    return a.distanceFrom(v);
-}
-
 constexpr floating_point_type distanceSq(const Segment& a, const Vec2& v) {
     if (sgn(a.vector().dot(v - a.begin)) < 0 || sgn((-a.vector()).dot(v - a.end)) < 0) {
         return min(v.distanceFromSq(a.begin), v.distanceFromSq(a.end));
@@ -304,11 +297,20 @@ constexpr floating_point_type distanceSq(const Segment& a, const Vec2& v) {
     return a.distanceFromSq(v);
 }
 
+floating_point_type distance(const Segment& a, const Vec2& v) { return std::sqrt(distanceSq(a, v)); }
+
 floating_point_type distance(const Segment& a, const Segment& b) {
     if (intersect(a, b)) return 0.0;
 
     return min({distance(a, b.begin), distance(a, b.end), distance(b, a.begin), distance(b, a.end)});
 }
+
+constexpr Vec2 projection(const Segment& a, const Vec2& v) {
+    if (sgn(a.vector().dot(v - a.begin)) < 0) return a.begin;
+    if (sgn((-a.vector()).dot(v - a.end)) < 0) return a.end;
+    return a.projection(v);
+}
+
 }  // namespace segment
 
 struct Triangle {
