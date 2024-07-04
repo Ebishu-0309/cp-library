@@ -98,7 +98,7 @@ struct Vector2D {
     }
 
     constexpr bool isZero() const noexcept { return x == T(0) && y == T(0); }
-    bool hasNan() const { return isnan(x) || isnan(y); }
+    bool hasNan() const { return std::isnan(x) || std::isnan(y); }
 
     constexpr T dot(const Vector2D& v) const noexcept { return x * v.x + y * v.y; }
     constexpr T cross(const Vector2D& v) const noexcept { return x * v.y - y * v.x; }
@@ -123,8 +123,8 @@ struct Vector2D {
     Vector2D& normalize() { return *this /= length(); }
 
     Vector2D rotated(floating_point_type angle) const {
-        const T s = sin(angle);
-        const T c = cos(angle);
+        const T s = std::sin(angle);
+        const T c = std::cos(angle);
         return {x * c - y * s, x * s + y * c};
     }
     Vector2D& rotate(floating_point_type angle) { return *this = rotated(angle); }
@@ -254,7 +254,7 @@ struct Line {
     floating_point_type length() const { return vector().length(); }
     constexpr value_type lengthSq() const { return vector().lengthSq(); }
 
-    floating_point_type distanceFrom(const Vec2& v) const { return fabs(vector().cross(v - begin)) / length(); }
+    floating_point_type distanceFrom(const Vec2& v) const { return std::abs(vector().cross(v - begin)) / length(); }
     constexpr value_type distanceFromSq(const Vec2& v) const {
         const value_type d = vector().cross(v - begin);
 
@@ -267,7 +267,7 @@ struct Line {
             return nullopt;
         }
 
-        return begin + vector() * fabs((line.end - begin).cross(line.vector()) / vector().cross(line.vector()));
+        return begin + vector() * std::abs((line.end - begin).cross(line.vector()) / vector().cross(line.vector()));
     }
 
     constexpr Vec2 projection(const Vec2& v) const { return begin + vector() * (v - begin).dot(vector()) / lengthSq(); }
