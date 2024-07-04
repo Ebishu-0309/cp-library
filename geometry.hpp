@@ -677,6 +677,7 @@ struct Polygon {
 };
 }  // namespace geometry
 
+// 3D
 namespace geometry {
 template <typename T>
 struct Vector3D {
@@ -749,6 +750,7 @@ struct Vector3D {
 };
 }  // namespace geometry
 
+// AOJ CGL
 namespace geometry {
 // x座標でsort済み
 floating_point_type distance_closest_pair(vector<Vec2>& points, int left, int right) {
