@@ -15,7 +15,6 @@
 #include <optional>
 #include <queue>
 #include <random>
-#include <ranges>
 #include <set>
 #include <stack>
 #include <string>
@@ -26,6 +25,7 @@
 
 #if __cplusplus >= 202002L
 #include <bit>
+#include <ranges>
 #else
 #define countl_zero __builtin_clzll
 #endif
@@ -213,6 +213,10 @@ inline istream& operator>>(istream& is, vector<T>& v) {
     for (auto& e : v) is >> e;
     return is;
 }
+template <typename T, typename U>
+inline istream& operator>>(istream& is, pair<T, U>& rhs) {
+    return is >> rhs.first >> rhs.second;
+}
 template <typename T>
 inline istream& operator>>(istream& is, complex<T>& c) {
     double real, imag;
@@ -230,20 +234,16 @@ inline ostream& operator<<(ostream& os, const vector<T>& v) {
     return os;
 }
 template <typename T, typename U>
+inline ostream& operator<<(ostream& os, const pair<T, U>& rhs) {
+    return os << "{" << rhs.first << ", " << rhs.second << "}";
+}
+template <typename T, typename U>
 inline bool chmin(T& a, const U b) {
     return a > b ? a = b, true : false;
 }
 template <typename T, typename U>
 inline bool chmax(T& a, const U b) {
     return a < b ? a = b, true : false;
-}
-template <typename T, typename U>
-inline istream& operator>>(istream& is, pair<T, U>& rhs) {
-    return is >> rhs.first >> rhs.second;
-}
-template <typename T, typename U>
-inline ostream& operator<<(ostream& os, const pair<T, U>& rhs) {
-    return os << "{" << rhs.first << ", " << rhs.second << "}";
 }
 template <typename T, typename U, class Pr>
 inline int getid(const vector<T>& v, const U& value, Pr pred) {
