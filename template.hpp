@@ -26,8 +26,10 @@
 #if __cplusplus >= 202002L
 #include <bit>
 #include <ranges>
+#define TYPE(n) remove_cvref_t<decltype(n)>
 #else
 #define countl_zero __builtin_clzll
+#define TYPE(n) remove_cv_t<remove_reference_t<decltype(n)>>
 #endif
 
 using namespace std;
