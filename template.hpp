@@ -646,3 +646,5 @@ T nearest_value(const vector<T>& v, const U& value) {
     if (itr == v.end()) return *prev(itr);
     return min(*itr - value, value - *prev(itr)) + value;
 }
+
+constexpr int msb(long long x) { return 63 - countl_zero(static_cast<uint64_t>(x)); }
