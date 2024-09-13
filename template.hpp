@@ -46,8 +46,6 @@ struct FastIO {
     }
 } aaaAAAaaaAAA;
 
-#define TYPE(n) remove_cvref_t<decltype(n)>
-
 #define rep(i, n) for (TYPE(n) i = 0; i < (n); ++i)
 #define repe(i, n) for (TYPE(n) i = 0; i <= (n); ++i)
 #define rep1(i, n) for (TYPE(n) i = 1; i < (n); ++i)
