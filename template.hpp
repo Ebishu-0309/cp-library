@@ -130,7 +130,7 @@ struct Binomial {
     void build(int n) {
         fact = enumerate_fact<Fp>(n);
         inv = enumerate_inv<MOD>(n);
-        fact_inv = enumerate_factinv<MOD>(n, inv);
+        fact_inv = enumerate_factinv<Fp>(n, inv);
     }
 
     Fp comb(int n, int r) const {
@@ -208,11 +208,7 @@ template <typename T>
 using prique = priority_queue<T>;
 template <typename T>
 using prique_inv = priority_queue<T, vector<T>, greater<T>>;
-template <typename T>
-inline istream& operator>>(istream& is, vector<T>& v) {
-    for (auto& e : v) is >> e;
-    return is;
-}
+
 template <typename T, typename U>
 inline istream& operator>>(istream& is, pair<T, U>& rhs) {
     return is >> rhs.first >> rhs.second;
@@ -226,16 +222,21 @@ inline istream& operator>>(istream& is, complex<T>& c) {
     return is;
 }
 template <typename T>
+inline istream& operator>>(istream& is, vector<T>& v) {
+    for (auto& e : v) is >> e;
+    return is;
+}
+template <typename T, typename U>
+inline ostream& operator<<(ostream& os, const pair<T, U>& rhs) {
+    return os << "{" << rhs.first << ", " << rhs.second << "}";
+}
+template <typename T>
 inline ostream& operator<<(ostream& os, const vector<T>& v) {
     for (auto itr = v.begin(), end_itr = v.end(); itr != end_itr;) {
         os << *itr;
         if (++itr != end_itr) os << " ";
     }
     return os;
-}
-template <typename T, typename U>
-inline ostream& operator<<(ostream& os, const pair<T, U>& rhs) {
-    return os << "{" << rhs.first << ", " << rhs.second << "}";
 }
 template <typename T, typename U>
 inline bool chmin(T& a, const U b) {
@@ -293,16 +294,6 @@ inline void YesNo(bool b) { cout << (b ? "Yes\n" : "No\n"); }
 inline void YESNO(bool b) { cout << (b ? "YES\n" : "NO\n"); }
 inline void takaao(bool b) { cout << (b ? "Takahashi\n" : "Aoki\n"); }
 inline void aotaka(bool b) { cout << (b ? "Aoki\n" : "Takahashi\n"); }
-
-template <typename T>
-void out(T&& t) {
-    cout << t << "\n";
-}
-template <typename Head, typename... Args>
-void out(Head&& head, Args&&... args) {
-    cout << head << " ";
-    out(forward<Args>(args)...);
-}
 
 template <typename T>
 T rand(T l, T r) {
