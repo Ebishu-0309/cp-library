@@ -192,11 +192,11 @@ vector<Vector2D<T>> convex_hull(vector<Vector2D<T>> points) {
 }
 
 /*
-ABから見てBCは左に曲がるのなら +1
-ABから見てBCは右に曲がるのなら -1
-BACの順番で一直線上に並ぶなら +2
-ABCの順番で一直線上に並ぶなら -2
-CがAB上なら 0
+A--B^^C: +1
+A--B__C: -1
+B--A--C: +2
+A--B--C: -2
+A--C--B: 0
 */
 template <typename T>
 constexpr int ccw(const Vector2D<T>& a, const Vector2D<T>& b, const Vector2D<T>& c) {
@@ -752,7 +752,7 @@ struct Vector3D {
 
 // AOJ CGL
 namespace geometry {
-// x座標でsort済み
+// sorted in x-coordinate
 floating_point_type distance_closest_pair(vector<Vec2>& points, int left, int right) {
     if (right - left <= 1) return 1e20;
 
@@ -779,7 +779,7 @@ floating_point_type distance_closest_pair(vector<Vec2>& points, int left, int ri
     return d;
 }
 
-// 垂直または水平線分の交点
+// parallel to x-axis or y-axis
 // begin < end
 vector<Vec2> intersections(const vector<Line>& lines) {
     const int n = static_cast<int>(lines.size());
@@ -789,10 +789,10 @@ vector<Vec2> intersections(const vector<Line>& lines) {
     for (int i = 0; i < n; ++i) {
         const Line& line = lines[i];
 
-        if (same(line.begin.y, line.end.y)) {  // 水平
+        if (same(line.begin.y, line.end.y)) {  // horizontal
             events.emplace_back(make_pair(line.begin.x, i));
             events.emplace_back(make_pair(line.end.x, i + 2 * n));
-        } else {  // 垂直
+        } else {  // vertical
             events.emplace_back(make_pair(line.begin.x, i + n));
         }
     }
@@ -807,15 +807,15 @@ vector<Vec2> intersections(const vector<Line>& lines) {
         const int id = kind % n;
         const Line& line = lines[id];
 
-        if (kind < n) {  // 左端
+        if (kind < n) {  // left-end
             y_list.insert(line.begin.y);
-        } else if (kind < 2 * n) {  // 垂直
+        } else if (kind < 2 * n) {  // vertical
             for (auto y : y_list) {
                 if (line.begin.y - EPS <= y && y <= line.end.y + EPS) {
                     res.emplace_back(Vec2(line.begin.x, y));
                 }
             }
-        } else {  // 右端
+        } else {  // right-end
             y_list.erase(line.end.y);
         }
     }
