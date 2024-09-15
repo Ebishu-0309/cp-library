@@ -267,7 +267,7 @@ struct Line {
             return nullopt;
         }
 
-        return begin + vector() * std::abs((line.end - begin).cross(line.vector()) / vector().cross(line.vector()));
+        return begin + vector() * ((line.end - begin).cross(line.vector()) / vector().cross(line.vector()));
     }
 
     constexpr Vec2 projection(const Vec2& v) const { return begin + vector() * (v - begin).dot(vector()) / lengthSq(); }
