@@ -396,7 +396,7 @@ lint intpow(lint x, lint n) {
 }
 
 template <typename T>
-vector<T> uniqued(vector<T> v) {
+vector<T> compressed(vector<T> v) {
     sort(v.begin(), v.end());
     v.erase(unique(v.begin(), v.end()), v.end());
     return v;
@@ -405,7 +405,7 @@ vector<T> uniqued(vector<T> v) {
 template <typename T>
 vector<int> compressed_index(vector<T> v) {
     const int n = v.size();
-    const vector<T> c = uniqued(v);
+    const vector<T> c = compressed(v);
     vector<int> res(n);
     for (int i = 0; i < n; ++i) {
         res[i] = lower_bound(c.begin(), c.end(), v[i]) - c.begin();
