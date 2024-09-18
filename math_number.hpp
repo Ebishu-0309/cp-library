@@ -30,12 +30,12 @@ class Montgomery {
     u128 convert(u64 x) const { return reduce(u128(x) * r2); }
 };
 
-bool miller_rabin_montgomery(lint n, const vector<lint> &ts) {
+bool miller_rabin_montgomery(long long n, const vector<long long> &ts) {
     const Montgomery mr(n);
 
-    const lint s2 = (n - 1) & (1 - n), d = (n - 1) / s2;
-    const auto pow_mod_n = [=](lint b, lint p) {
-        lint res = 1;
+    const long long s2 = (n - 1) & (1 - n), d = (n - 1) / s2;
+    const auto pow_mod_n = [=](long long b, long long p) {
+        long long res = 1;
         while (p > 0) {
             if (p & 1) res = mr.mul(res, b);
             b = mr.mul(b, b);
@@ -43,11 +43,11 @@ bool miller_rabin_montgomery(lint n, const vector<lint> &ts) {
         }
         return res;
     };
-    for (const lint a : ts) {
+    for (const long long a : ts) {
         if (a >= n) break;
         auto ad = pow_mod_n(a, d);
         if (ad == 1) continue;
-        lint t = 1;
+        long long t = 1;
         for (; t < s2; t <<= 1) {
             if (ad == n - 1) break;
             ad = mr.mul(ad, ad);
@@ -56,7 +56,7 @@ bool miller_rabin_montgomery(lint n, const vector<lint> &ts) {
     }
     return true;
 }
-bool is_prime_montgomery(lint n) {
+bool is_prime_montgomery(long long n) {
     if (n == 1) return false;
     if (n == 2) return true;
     if ((n & 1) == 0) return false;
@@ -64,10 +64,10 @@ bool is_prime_montgomery(lint n) {
     return miller_rabin_montgomery(n, {2, 325, 9375, 28178, 450775, 9780504, 1795265022});
 }
 
-bool miller_rabin(lint n, const vector<lint> &ts) {
-    const lint s2 = (n - 1) & (1 - n), d = (n - 1) / s2;
-    const auto pow_mod_n = [=](lint b, lint p) {
-        lint res = 1;
+bool miller_rabin(long long n, const vector<long long> &ts) {
+    const long long s2 = (n - 1) & (1 - n), d = (n - 1) / s2;
+    const auto pow_mod_n = [=](long long b, long long p) {
+        long long res = 1;
         while (p > 0) {
             if (p & 1) res = __int128_t(res) * b % n;
             b = __int128_t(b) * b % n;
@@ -75,11 +75,11 @@ bool miller_rabin(lint n, const vector<lint> &ts) {
         }
         return res;
     };
-    for (const lint a : ts) {
+    for (const long long a : ts) {
         if (a >= n) break;
         auto ad = pow_mod_n(a, d);
         if (ad == 1) continue;
-        lint t = 1;
+        long long t = 1;
         for (; t < s2; t <<= 1) {
             if (ad == n - 1) break;
             ad = __int128_t(ad) * ad % n;
@@ -88,7 +88,7 @@ bool miller_rabin(lint n, const vector<lint> &ts) {
     }
     return true;
 }
-bool is_prime(lint n) {
+bool is_prime(long long n) {
     if (n == 1) return false;
     if (n == 2) return true;
     if ((n & 1) == 0) return false;
