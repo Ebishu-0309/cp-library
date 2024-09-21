@@ -156,9 +156,9 @@ struct Matrix : public vector<vector<T>> {
     friend ostream &operator<<(ostream &os, const Matrix &mat) {
         for (auto itr1 = mat.begin(), end_itr1 = mat.end(); itr1 != end_itr1;) {
             const auto &v = *itr1;
-            for (auto itr2 = v.begin(), end_itr = v.end(); itr2 != end_itr;) {
+            for (auto itr2 = v.begin(), end_itr2 = v.end(); itr2 != end_itr2;) {
                 os << *itr2;
-                if (++itr2 != end_itr) os << " ";
+                if (++itr2 != end_itr2) os << " ";
             }
             if (++itr1 != end_itr1) os << "\n";
         }
