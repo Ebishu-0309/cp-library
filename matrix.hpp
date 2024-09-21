@@ -75,4 +75,93 @@ struct Matrix : public vector<vector<T>> {
         }
         return res;
     }
+
+    T det() const {
+        Matrix mat(*this);
+        int n = mat.sizeH();
+        T prod = 1;
+        for (int j0 = 0; j0 < n; ++j0) {
+            bool found = false;
+            for (int i0 = j0; i0 < n; ++i0) {
+                if (mat[i0][j0] != 0) {
+                    if (i0 != j0) {
+                        swap(mat[i0], mat[j0]);
+                        prod *= -1;
+                    }
+                    prod *= mat[j0][j0];
+                    T inv = 1 / mat[j0][j0];
+                    for (auto &e : mat[j0]) e *= inv;
+                    for (int i1 = 0; i1 < n; ++i1) {
+                        if (j0 != i1) {
+                            T mul = mat[i1][j0];
+                            for (int j1 = j0; j1 < n; ++j1) {
+                                mat[i1][j1] -= mul * mat[j0][j1];
+                            }
+                        }
+                    }
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                return 0;
+            }
+        }
+        return prod;
+    }
+
+    optional<Matrix> inv() const {
+        int n = (*this).sizeH();
+        Matrix mat(n, 2 * n);
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                mat[i][j] = (*this)[i][j];
+            }
+            mat[i][i + n] = 1;
+        }
+        for (int j0 = 0; j0 < n; ++j0) {
+            bool found = false;
+            for (int i0 = j0; i0 < n; ++i0) {
+                if (mat[i0][j0] != 0) {
+                    if (i0 != j0) {
+                        swap(mat[i0], mat[j0]);
+                    }
+                    T inv = 1 / mat[j0][j0];
+                    for (auto &e : mat[j0]) e *= inv;
+                    for (int i1 = 0; i1 < n; ++i1) {
+                        if (j0 != i1) {
+                            T mul = mat[i1][j0];
+                            for (int j1 = j0; j1 < 2 * n; ++j1) {
+                                mat[i1][j1] -= mul * mat[j0][j1];
+                            }
+                        }
+                    }
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                return nullopt;
+            }
+        }
+        Matrix res(n, n);
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                res[i][j] = mat[i][j + n];
+            }
+        }
+        return res;
+    }
+
+    friend ostream &operator<<(ostream &os, const Matrix &mat) {
+        for (auto itr1 = mat.begin(), end_itr1 = mat.end(); itr1 != end_itr1;) {
+            const auto &v = *itr1;
+            for (auto itr2 = v.begin(), end_itr = v.end(); itr2 != end_itr;) {
+                os << *itr2;
+                if (++itr2 != end_itr) os << " ";
+            }
+            if (++itr1 != end_itr1) os << "\n";
+        }
+        return os;
+    }
 };
