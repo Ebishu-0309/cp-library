@@ -1,14 +1,3 @@
-#pragma once
-#include <algorithm>
-#include <functional>
-#include <iostream>
-#include <optional>
-#include <queue>
-#include <utility>
-#include <vector>
-
-using namespace std;
-
 struct Edge {
     int to;
     long long cost;

@@ -1,3 +1,4 @@
+#include "formal_power_series.hpp"
 vector<mint> stirling_second_k(int k, int nmax) {
     const int m = nmax - k;
     FPS f(m + 1);
