@@ -1,3 +1,5 @@
+#include <atcoder/math>
+
 class ArbitraryModBinomial {
    public:
     explicit ArbitraryModBinomial(int mod) {
@@ -24,15 +26,23 @@ class ArbitraryModBinomial {
 
         siz = p.size();
         fac.resize(siz);
+        fac_inv.resize(siz);
 
         for (int i = 0; i < siz; ++i) {
-            fac[i].resize(m[i]);
+            const long long mi = m[i];
+            fac[i].resize(mi);
+            fac_inv[i].resize(mi);
+
             fac[i][0] = 1;
-            for (int j = 1; j < m[i]; ++j) {
-                if (j % p[i] == 0)
+            fac_inv[i][0] = 1;
+            for (int j = 1; j < mi; ++j) {
+                if (j % p[i] == 0) {
                     fac[i][j] = fac[i][j - 1];
-                else
-                    fac[i][j] = fac[i][j - 1] * j % m[i];
+                    fac_inv[i][j] = fac_inv[i][j - 1];
+                } else {
+                    fac[i][j] = fac[i][j - 1] * j % mi;
+                    fac_inv[i][j] = modinv(fac[i][j], mi);
+                }
             }
         }
     }
@@ -50,7 +60,7 @@ class ArbitraryModBinomial {
     int siz;
     vector<int> p, q, m;  // m[i] = p[i]^q[i]
 
-    vector<vector<long long>> fac;
+    vector<vector<long long>> fac, fac_inv;
 
     long long calc_sub(long long n, long long r, int i) const {
         const long long k = n - r;
@@ -63,7 +73,7 @@ class ArbitraryModBinomial {
         rs.resize(l);
         ks.resize(l);
         for (int j = 0; j < l; ++j) {
-            comb *= fac[i][ns[j] % m[i]] * modinv(fac[i][rs[j] % m[i]] * fac[i][ks[j] % m[i]], m[i]) % m[i];
+            comb *= fac[i][ns[j] % m[i]] * (fac_inv[i][rs[j] % m[i]] * fac_inv[i][ks[j] % m[i]] % m[i]) % m[i];
             comb %= m[i];
         }
         return comb * modpow(p[i], e0, m[i]) % m[i];
