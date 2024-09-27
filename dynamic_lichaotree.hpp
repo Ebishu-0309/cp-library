@@ -1,37 +1,33 @@
-template <typename T, auto x_min, auto x_max, auto y_max>
+template <typename T>
 class DynamicLiChaoTree {
-    static_assert(std::is_convertible_v<decltype(x_min), std::function<T()>>, "x_min must work as T()");
-    static_assert(std::is_convertible_v<decltype(x_max), std::function<T()>>, "x_max must work as T()");
-    static_assert(std::is_convertible_v<decltype(y_max), std::function<T()>>, "y_max must work as T()");
-
    public:
-    DynamicLiChaoTree() : root(nullptr) {}
-
-    //~DynamicLiChaoTree() { del(root); }
+    DynamicLiChaoTree(T x_min, T x_max, T y_max) : x_min(x_min), x_max(x_max), y_max(y_max), root(nullptr) {}
 
     // add ax + b
     void add_line(T a, T b) {
         Line line(a, b);
-        add_line(root, x_min(), x_max(), line.calc(x_min()), line.calc(x_max()), line);
+        add_line(root, x_min, x_max, line.calc(x_min), line.calc(x_max), line);
     }
 
     // add ax + b [x_l, x_r]
     void add_segment(T a, T b, T x_l, T x_r) {
         Line line(a, b);
-        add_segment(root, x_l, x_r, x_min(), x_max(), line);
+        add_segment(root, x_l, x_r, x_min, x_max, line);
     }
 
     // min at x
-    T query(T x) { return query(root, x_min(), x_max(), x); }
+    T query(T x) { return query(root, x_min, x_max, x); }
 
    private:
+    T x_min, x_max, y_max;
+
     struct Line {
         T a, b;
         constexpr Line(T a_, T b_) noexcept : a(a_), b(b_) {}
         constexpr T calc(T x) const noexcept { return a * x + b; }
     };
     struct Node;
-    using Node_t = Node *;
+    using Node_t = unique_ptr<Node>;
     struct Node {
         Line line;
         Node_t l, r;
@@ -43,12 +39,12 @@ class DynamicLiChaoTree {
 
     static constexpr T add_eps() noexcept { return (is_integral_v<T> ? 1 : 0); }
 
-    T get(Node_t t, T x) { return (t == nullptr ? y_max() : t->line.calc(x)); }
+    T get(const Node_t &t, T x) { return (t == nullptr ? y_max : t->line.calc(x)); }
 
     void add_line(Node_t &t, T x_l, T x_r, T y_new_l, T y_new_r, Line new_line) {
         if (x_l > x_r) return;
         if (t == nullptr) {
-            t = new Node(new_line);
+            t = make_unique<Node>(new_line);
             return;
         }
 
@@ -63,8 +59,8 @@ class DynamicLiChaoTree {
         T x_m = (x_l + x_r) / 2;
         if constexpr (is_integral_v<T>) {
             if (x_l + 1 == x_r) {
-                t->l = new Node((y_l <= y_new_l) ? t->line : new_line);
-                t->r = new Node((y_r <= y_new_r) ? t->line : new_line);
+                t->l = make_unique<Node>((y_l <= y_new_l) ? t->line : new_line);
+                t->r = make_unique<Node>((y_r <= y_new_r) ? t->line : new_line);
                 return;
             }
         }
@@ -96,7 +92,7 @@ class DynamicLiChaoTree {
         }
 
         if (t == nullptr) {
-            t = new Node(0, y_max());
+            t = make_unique<Node>(0, y_max);
         }
 
         T x_c = (x_a + x_b) / 2;
@@ -111,25 +107,18 @@ class DynamicLiChaoTree {
         add_segment(t->r, x_l, x_r, x_c + add_eps(), x_b, new_line);
     }
 
-    T query(Node_t t, T x_l, T x_r, T x) {
-        if (t == nullptr) return y_max();
+    T query(const Node_t &t, T x_l, T x_r, T x) {
+        if (t == nullptr) return y_max;
         T y = t->line.calc(x);
 
         T x_m = (x_l + x_r) / 2;
         if constexpr (is_integral_v<T>) {
             if (x_l + 1 == x_r) {
-                return min({y, (x == x_l ? get(t->l, x) : y_max()), (x == x_r ? get(t->r, x) : y_max())});
+                return min({y, (x == x_l ? get(t->l, x) : y_max), (x == x_r ? get(t->r, x) : y_max)});
             }
         }
 
         if (x <= x_m) return min(y, query(t->l, x_l, x_m, x));
         return min(y, query(t->r, x_m + add_eps(), x_r, x));
-    }
-
-    void del(Node_t &t) {
-        if (t == nullptr) return;
-        del(t->l);
-        del(t->r);
-        delete t;
     }
 };
