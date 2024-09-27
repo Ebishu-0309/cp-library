@@ -23,7 +23,7 @@ void add_line(T a, T b)
 ```cpp
 void add_segment(T a, T b, T x_l, T x_r)
 ```
-線分 $y=ax+b\:(x\in[x_l,x_r])$ を追加する。
+線分 $y=ax+b\space(x\in[x_l,x_r])$ を追加する。
 ### 計算量
 * $O(\log^2 L)$
 

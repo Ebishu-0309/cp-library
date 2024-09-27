@@ -1,5 +1,5 @@
 template <int MOD>
-struct FormalPowerSeries : vector<atcoder::static_modint<MOD>> {
+struct FormalPowerSeries : public vector<atcoder::static_modint<MOD>> {
     using Fp = atcoder::static_modint<MOD>;
 
     using vector<Fp>::vector;
@@ -180,9 +180,8 @@ struct FormalPowerSeries : vector<atcoder::static_modint<MOD>> {
     F &diff_inplace() noexcept {
         const int n = this->size();
 
-        for (int i = 2; i < n; ++i) (*this)[i] *= i;
-        this->erase(this->begin());
-        this->push_back(0);
+        for (int i = 1; i < n; ++i) (*this)[i - 1] = (*this)[i] * i;
+        this->back() = 0;
 
         return *this;
     }
