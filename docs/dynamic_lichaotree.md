@@ -7,7 +7,7 @@ documentation_of: ../dynamic_lichaotree.hpp
 ```cpp
 DynamicLiChaoTree(T x_min, T x_max, T y_max)
 ```
-$x$ の範囲および $y$ の最大値を設定して空の Li-Chao Tree を構築する。以降、$L=x_\mathrm{max}-x_\mathrm{min}$ とする。
+$x$ の範囲および $y$ の最大値を設定して空の Li Chao Tree を構築する。以降、$L=x_\mathrm{max}-x_\mathrm{min}$ とする。
 ### 計算量
 * $O(1)$
 
