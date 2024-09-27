@@ -1,6 +1,6 @@
 ---
 title: Binary Trie
-documentation_of: ../dynamic_segtree.hpp
+documentation_of: ../binary_trie.hpp
 ---
 
 非負整数を 2 進表記で管理する Trie 木。
