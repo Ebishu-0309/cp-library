@@ -6,15 +6,13 @@ class DynamicSegtree {
    public:
     DynamicSegtree(long long lmin, long long rmax) : lmin(lmin), rmax(rmax), root(nullptr) {}
 
-    ~DynamicSegtree() { del(root); }
-
     void set(long long p, S x) { set(root, lmin, rmax, p, x); }
     S get(long long p) { return get(root, lmin, rmax, p); }
     S prod(long long l, long long r) { return prod(root, lmin, rmax, l, r); }
 
    private:
     struct Node;
-    using Node_t = Node*;
+    using Node_t = unique_ptr<Node>;
     struct Node {
         S val;
         Node_t l, r;
@@ -22,13 +20,13 @@ class DynamicSegtree {
         Node(S v) : val(v), l(nullptr), r(nullptr) {}
     };
 
-    S get(Node_t t) { return (t == nullptr ? e() : t->val); }
+    S get(const Node_t &t) { return (t == nullptr ? e() : t->val); }
 
     long long lmin, rmax;
     Node_t root;
 
-    void set(Node_t& t, long long l, long long r, long long p, S x) {
-        if (t == nullptr) t = new Node(e());
+    void set(Node_t &t, long long l, long long r, long long p, S x) {
+        if (t == nullptr) t = make_unique<Node>(e());
         if (l + 1 == r) {
             t->val = x;
             return;
@@ -43,7 +41,7 @@ class DynamicSegtree {
         t->val = op(get(t->l), get(t->r));
     }
 
-    S get(Node_t t, long long l, long long r, long long p) {
+    S get(const Node_t &t, long long l, long long r, long long p) {
         if (t == nullptr) return e();
         if (l + 1 == r) return t->val;
         long long m = (l + r) >> 1;
@@ -52,17 +50,10 @@ class DynamicSegtree {
     }
 
     // query: [l, r), now: [a, b)
-    S prod(Node_t t, long long a, long long b, long long l, long long r) {
+    S prod(const Node_t &t, long long a, long long b, long long l, long long r) {
         if (t == nullptr || b <= l || r <= a) return e();
         if (l <= a && b <= r) return t->val;
         long long c = (a + b) >> 1;
         return op(prod(t->l, a, c, l, r), prod(t->r, c, b, l, r));
-    }
-
-    void del(Node_t& t) {
-        if (t == nullptr) return;
-        del(t->l);
-        del(t->r);
-        delete t;
     }
 };
