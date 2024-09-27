@@ -7,7 +7,7 @@ documentation_of: ../sparse_table.hpp
 
 ## コンストラクタ
 ```cpp
-SparseTable(const vector<T>& v)
+SparseTable(const vector<S>& v)
 ```
 数列 `v` で構築する。
 ### 計算量
@@ -15,7 +15,7 @@ SparseTable(const vector<T>& v)
 
 ## prod
 ```cpp
-T prod(int l, int r)
+S prod(int l, int r)
 ```
 区間 $[l, r)$ の総積を返す。
 ### 計算量
