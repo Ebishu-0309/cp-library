@@ -1,6 +1,6 @@
 ---
 title: Dynamic Li Chao Tree
-documentation_of: ../dynamic_segtree.hpp
+documentation_of: ../dynamic_lichaotree.hpp
 ---
 
 ## コンストラクタ
