@@ -1,10 +1,6 @@
-template <typename T, T (*op)(T, T)>
+template <typename T, auto op>
 class SparseTable {
-   private:
-    const int n;
-
-    vector<int> log_table;
-    vector<vector<T>> table;
+    static_assert(std::is_convertible_v<decltype(op), std::function<S(S, S)>>, "op must work as S(S, S)");
 
    public:
     explicit SparseTable(const vector<T>& v) : n(v.size()), log_table(n + 1) {
@@ -25,9 +21,15 @@ class SparseTable {
         }
     }
 
-    T fold(const int l, const int r) const {
+    T prod(int l, int r) const {
         const int k = log_table[r - l];
 
         return op(table[k][l], table[k][r - (1 << k)]);
     }
+
+   private:
+    int n;
+
+    vector<int> log_table;
+    vector<vector<T>> table;
 };
