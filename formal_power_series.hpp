@@ -1,3 +1,5 @@
+#include <atcoder/convolution>
+
 template <int MOD>
 struct FormalPowerSeries : public vector<atcoder::static_modint<MOD>> {
     using Fp = atcoder::static_modint<MOD>;
@@ -395,7 +397,7 @@ struct FormalPowerSeries : public vector<atcoder::static_modint<MOD>> {
         if (n == 0) return {1};
 
         for (int i = n - 1; i > 0; --i) {
-            fs[i / 2] = convolution(fs[i / 2], fs[i]);
+            fs[i / 2] = atcoder::convolution(fs[i / 2], fs[i]);
         }
         return fs[0];
     }
@@ -480,7 +482,7 @@ struct FormalPowerSeries : public vector<atcoder::static_modint<MOD>> {
         vector<mint> q(d + 1);
         q[0] = 1;
         for (int i = 0; i < d; ++i) q[i + 1] = -c[i];
-        vector<mint> p = convolution(a, q);
+        vector<mint> p = atcoder::convolution(a, q);
         p.resize(d);
         return coeff(p, q, k);
     }
