@@ -1,6 +1,6 @@
 template <class F, auto composition, auto id>
 class CommutativeDualSegmentTree {
-    static_assert(is_convertible_v<decltype(composition), function<F(F, F)>>, "compostiion must work as F(F, F)");
+    static_assert(is_convertible_v<decltype(composition), function<F(F, F)>>, "composition must work as F(F, F)");
     static_assert(is_convertible_v<decltype(id), function<F()>>, "id must work as F()");
 
    public:

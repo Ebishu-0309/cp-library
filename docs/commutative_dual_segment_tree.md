@@ -16,6 +16,7 @@ documentation_of: ../commutative_dual_segment_tree.hpp
 を受け取り、
 1. 長さ `n` 、初期値 `id()` で構築。
 1. `f` で構築。
+
 ### 計算量
 * $O(n)$
 
@@ -29,7 +30,7 @@ F get(int p)
 
 ## apply
 ```cpp
-void apply(int l,int r, F f)
+void apply(int l, int r, F f)
 ```
 $k\in[l, r)$ に対して、$k$ 番目の作用素に `f` を合成。
 ### 計算量
