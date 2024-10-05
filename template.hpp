@@ -64,6 +64,8 @@ constexpr double InvPi = 0.318309886183790671;
 
 const int di[] = {0, -1, 0, 1, 0};
 const int dj[] = {1, 0, -1, 0, 0};
+pair<int, int> adj(int i, int j, int k) { return {i + di[k], j + dj[k]}; }
+bool in(int i, int j, int h, int w) { return 0 <= i && i < h && 0 <= j && j < w; }
 
 #if __has_include(<atcoder/all>)
 #include <atcoder/all>
@@ -72,28 +74,28 @@ using namespace atcoder;
 using mint = static_modint<Mod>;
 
 template <int MOD>
-inline istream& operator>>(istream& is, static_modint<MOD>& rhs) {
+inline istream &operator>>(istream &is, static_modint<MOD> &rhs) {
     long long tmp;
     is >> tmp;
     rhs = tmp;
     return is;
 }
 template <int ID>
-inline istream& operator>>(istream& is, dynamic_modint<ID>& rhs) {
+inline istream &operator>>(istream &is, dynamic_modint<ID> &rhs) {
     long long tmp;
     is >> tmp;
     rhs = tmp;
     return is;
 }
 template <int MOD>
-inline ostream& operator<<(ostream& os, const static_modint<MOD>& rhs) {
+inline ostream &operator<<(ostream &os, const static_modint<MOD> &rhs) {
     return os << rhs.val();
 }
 template <int ID>
-inline ostream& operator<<(ostream& os, const dynamic_modint<ID>& rhs) {
+inline ostream &operator<<(ostream &os, const dynamic_modint<ID> &rhs) {
     return os << rhs.val();
 }
-
+// [0, n]
 template <typename T>
 auto enumerate_fact(int n) {
     vector<T> fact(n + 1);
@@ -101,6 +103,7 @@ auto enumerate_fact(int n) {
     for (int i = 1; i <= n; ++i) fact[i] = i * fact[i - 1];
     return fact;
 }
+// [0, n]
 template <int MOD>
 auto enumerate_inv(int n) {
     vector<static_modint<MOD>> inv(n + 1);
@@ -108,6 +111,7 @@ auto enumerate_inv(int n) {
     for (int i = 2; i <= n; ++i) inv[i] = MOD - MOD / i * inv[MOD % i];
     return inv;
 }
+// [0, n]
 template <typename T>
 auto enumerate_factinv(int n, vector<T> inv) {
     vector<T> fact_inv(n + 1);
@@ -115,6 +119,7 @@ auto enumerate_factinv(int n, vector<T> inv) {
     for (int i = 1; i <= n; ++i) fact_inv[i] = fact_inv[i - 1] * inv[i];
     return fact_inv;
 }
+// [0, n]
 template <int MOD>
 auto enumerate_factinv(int n) {
     return enumerate_factinv(n, enumerate_inv<MOD>(n));
@@ -127,6 +132,7 @@ struct Binomial {
 
     explicit Binomial() = default;
 
+    // [0, n]
     void build(int n) {
         fact = enumerate_fact<Fp>(n);
         inv = enumerate_inv<MOD>(n);
@@ -156,7 +162,7 @@ inline mint comb(int n, int r) { return binomial.comb(n, r); }
 inline mint perm(int n, int r) { return binomial.perm(n, r); }
 inline mint multi(int n, int r) { return binomial.multi(n, r); }
 
-mint lagrange_interpolation(const vector<mint>& y, mint t) {
+mint lagrange_interpolation(const vector<mint> &y, mint t) {
     const int n = (int)y.size();
 
     mint res = 0;
@@ -204,59 +210,84 @@ lint inversion_number(const vector<T> vec) {
 }
 #endif
 
+// top = max
 template <typename T>
 using prique = priority_queue<T>;
+// top = min
 template <typename T>
 using prique_inv = priority_queue<T, vector<T>, greater<T>>;
 
 template <typename T, typename U>
-inline istream& operator>>(istream& is, pair<T, U>& rhs) {
+inline istream &operator>>(istream &is, pair<T, U> &rhs) {
     return is >> rhs.first >> rhs.second;
 }
 template <typename T>
-inline istream& operator>>(istream& is, complex<T>& c) {
+inline istream &operator>>(istream &is, complex<T> &c) {
     double real, imag;
     is >> real >> imag;
     c.real(real);
     c.imag(imag);
     return is;
 }
-template <typename T>
-inline istream& operator>>(istream& is, vector<T>& v) {
-    for (auto& e : v) is >> e;
-    return is;
-}
 template <typename T, typename U>
-inline ostream& operator<<(ostream& os, const pair<T, U>& rhs) {
+inline ostream &operator<<(ostream &os, const pair<T, U> &rhs) {
     return os << "{" << rhs.first << ", " << rhs.second << "}";
 }
-template <typename T>
-inline ostream& operator<<(ostream& os, const vector<T>& v) {
+
+#if __cplusplus >= 202002L
+template <class T>
+concept Container = requires(const T &v) {
+    v.begin();
+    v.end();
+};
+template <Container T>
+inline istream &operator>>(istream &is, T &v) {
+    for (auto &e : v) is >> e;
+    return is;
+}
+template <Container T>
+inline ostream &operator<<(ostream &os, const T &v) {
     for (auto itr = v.begin(), end_itr = v.end(); itr != end_itr;) {
         os << *itr;
         if (++itr != end_itr) os << " ";
     }
     return os;
 }
+#elif
+template <typename T>
+inline istream &operator>>(istream &is, vector<T> &v) {
+    for (auto &e : v) is >> e;
+    return is;
+}
+template <typename T>
+inline ostream &operator<<(ostream &os, const vector<T> &v) {
+    for (auto itr = v.begin(), end_itr = v.end(); itr != end_itr;) {
+        os << *itr;
+        if (++itr != end_itr) os << " ";
+    }
+    return os;
+}
+#endif
+
 template <typename T, typename U>
-inline bool chmin(T& a, const U b) {
+inline bool chmin(T &a, const U b) {
     return a > b ? a = b, true : false;
 }
 template <typename T, typename U>
-inline bool chmax(T& a, const U b) {
+inline bool chmax(T &a, const U b) {
     return a < b ? a = b, true : false;
 }
 template <typename T, typename U, class Pr>
-inline int getid(const vector<T>& v, const U& value, Pr pred) {
+inline int getid(const vector<T> &v, const U &value, Pr pred) {
     return lower_bound(v.begin(), v.end(), value, pred) - v.begin();
 }
 template <typename T, typename U>
-inline int getid(const vector<T>& v, const U& value) {
+inline int getid(const vector<T> &v, const U &value) {
     return getid(v, value, less<>{});
 }
 
 template <typename T>
-T gcd(const vector<T>& vec) {
+T gcd(const vector<T> &vec) {
     T res = vec.front();
     for (T e : vec) {
         res = gcd(res, e);
@@ -275,7 +306,7 @@ T gcd(initializer_list<T> init) {
     return res;
 }
 template <typename T>
-T lcm(const vector<T>& vec) {
+T lcm(const vector<T> &vec) {
     T res = vec.front();
     for (T e : vec) res = lcm(res, e);
     return res;
@@ -295,6 +326,7 @@ inline void YESNO(bool b) { cout << (b ? "YES\n" : "NO\n"); }
 inline void takaao(bool b) { cout << (b ? "Takahashi\n" : "Aoki\n"); }
 inline void aotaka(bool b) { cout << (b ? "Aoki\n" : "Takahashi\n"); }
 
+// [l, r]
 template <typename T>
 T rand(T l, T r) {
     static mt19937 mt(random_device{}());
@@ -359,6 +391,10 @@ template <typename T>
 constexpr bool is_intersect(T l1, T r1, T l2, T r2) {
     return l1 <= r2 && l2 <= r1;
 }
+template <typename T>
+constexpr bool is_intersect2(T l1, T r1, T l2, T r2) {
+    return l1 < r2 && l2 < r1;
+}
 
 lint modinv(lint a, lint m = Mod) {
     lint b = m, u = 1, v = 0;
@@ -400,40 +436,6 @@ vector<T> compressed(vector<T> v) {
     sort(v.begin(), v.end());
     v.erase(unique(v.begin(), v.end()), v.end());
     return v;
-}
-
-template <typename T>
-vector<int> compressed_index(vector<T> v) {
-    const int n = v.size();
-    const vector<T> c = compressed(v);
-    vector<int> res(n);
-    for (int i = 0; i < n; ++i) {
-        res[i] = lower_bound(c.begin(), c.end(), v[i]) - c.begin();
-    }
-    return res;
-}
-
-// { value, count }
-template <typename T>
-pair<vector<T>, vector<int>> compressed_pair(vector<T> v) {
-    size_t n = v.size();
-    sort(v.begin(), v.end());
-    vector<T> cnt, val;
-    cnt.reserve(n);
-    val.reserve(n);
-    int now_cnt = 1;
-    for (size_t i = 1; i < n; ++i) {
-        if (v[i - 1] != v[i]) {
-            cnt.push_back(now_cnt);
-            val.push_back(v[i - 1]);
-            now_cnt = 1;
-        } else
-            ++now_cnt;
-    }
-    cnt.push_back(now_cnt);
-    val.push_back(v.back());
-
-    return {val, cnt};
 }
 
 class Factring {
@@ -524,52 +526,10 @@ struct UnionFind {
             if (par[i] == i) res[i].reserve(siz[i]);
         for (int i = 0; i < n; ++i) res[root(i)].push_back(i);
 
-        res.erase(remove_if(res.begin(), res.end(), [](const vector<int>& v) { return v.empty(); }), res.end());
+        res.erase(remove_if(res.begin(), res.end(), [](const vector<int> &v) { return v.empty(); }), res.end());
 
         return res;
     }
-};
-
-template <typename T>
-class CumulativeSum2D {
-   private:
-    vector<vector<T>> dat;
-
-   public:
-    CumulativeSum2D() = default;
-
-    explicit CumulativeSum2D(size_t n) : dat(n + 1, vector<T>(n + 1)) {}
-
-    CumulativeSum2D(size_t h, size_t w) : dat(h + 1, vector<T>(w + 1)) {}
-
-    CumulativeSum2D(const vector<vector<T>>& vec) {
-        const size_t h = vec.size(), w = vec.front().size();
-
-        dat.resize(h + 1, vector<T>(w + 1));
-
-        for (size_t i = 0; i < h; ++i) {
-            for (size_t j = 0; j < w; ++j) {
-                dat[i + 1][j + 1] = dat[i][j + 1] + dat[i + 1][j] - dat[i][j] + vec[i][j];
-            }
-        }
-    }
-
-    void add(int h, int w, int v) { dat[h + 1][w + 1] += v; }
-
-    void build() {
-        const size_t h = dat.size() - 1, w = dat.front().size() - 1;
-        for (size_t i = 0; i < h; ++i) {
-            for (size_t j = 0; j < w; ++j) {
-                dat[i + 1][j + 1] = dat[i][j + 1] + dat[i + 1][j] - dat[i][j];
-            }
-        }
-    }
-
-    // [0, h) x [0, w)
-    T sum(int h, int w) const { return sum(0, 0, h, w); }
-
-    // [h1, h2) x [w1, w2)
-    T sum(int h1, int w1, int h2, int w2) const { return dat[h2][w2] - dat[h1][w2] - dat[h2][w1] + dat[h1][w1]; }
 };
 
 template <typename T>
@@ -583,7 +543,7 @@ class BinaryIndexedTree {
 
     explicit BinaryIndexedTree(const int size) : n(size), dat(size + 1) {}
 
-    explicit BinaryIndexedTree(const vector<T>& vec) : n(vec.size()), dat(n + 1) {
+    explicit BinaryIndexedTree(const vector<T> &vec) : n(vec.size()), dat(n + 1) {
         for (int i = 0; i < n; ++i) dat[i + 1] = vec[i];
         for (int i = 1; i <= n; ++i) {
             const int j = i + (i & -i);
@@ -638,13 +598,5 @@ class BinaryIndexedTree {
         return x + 1;
     }
 };
-
-template <typename T, typename U>
-T nearest_value(const vector<T>& v, const U& value) {
-    auto itr = lower_bound(v.begin(), v.end(), value);
-    if (itr == v.begin()) return *itr;
-    if (itr == v.end()) return *prev(itr);
-    return min(*itr - value, value - *prev(itr)) + value;
-}
 
 constexpr int msb(long long x) { return 63 - countl_zero(static_cast<uint64_t>(x)); }
