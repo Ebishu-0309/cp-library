@@ -1,12 +1,12 @@
 template <class F, auto composition, auto id>
-class CommutativeDualSegmentTree {
+class DualSegmentTree {
     static_assert(is_convertible_v<decltype(composition), function<F(F, F)>>, "composition must work as F(F, F)");
     static_assert(is_convertible_v<decltype(id), function<F()>>, "id must work as F()");
 
    public:
-    CommutativeDualSegmentTree() : CommutativeDualSegmentTree(0) {}
-    explicit CommutativeDualSegmentTree(int n) : CommutativeDualSegmentTree(vector<F>(n, id())) {}
-    explicit CommutativeDualSegmentTree(vector<F> f) : n(int(f.size())) {
+    DualSegmentTree() : DualSegmentTree(0) {}
+    explicit DualSegmentTree(int n) : DualSegmentTree(vector<F>(n, id())) {}
+    explicit DualSegmentTree(vector<F> f) : n(int(f.size())) {
         h = ceil_log2(n);
         siz = (1 << h);
         act = vector<F>(2 * siz, id());
@@ -25,6 +25,11 @@ class CommutativeDualSegmentTree {
         l += siz;
         r += siz;
 
+        for (int i = h; i >= 1; --i) {
+            if (((l >> i) << i) != l) push(l >> i);
+            if (((r >> i) << i) != r) push((r - 1) >> i);
+        }
+
         while (l < r) {
             if (l & 1) apply(l++, f);
             if (r & 1) apply(--r, f);
@@ -38,6 +43,11 @@ class CommutativeDualSegmentTree {
     vector<F> act;
 
     void apply(int k, F f) { act[k] = composition(f, act[k]); }
+    void push(int k) {
+        apply(2 * k, act[k]);
+        apply(2 * k + 1, act[k]);
+        act[k] = id();
+    }
 
     int ceil_log2(int x) {
         int res = 0;

@@ -1,13 +1,13 @@
 ---
-title: 可換双対セグ木
-documentation_of: ../commutative_dual_segment_tree.hpp
+title: 双対セグ木
+documentation_of: ../dual_segment_tree.hpp
 ---
 
-作用素の合成が可換な場合の双対セグ木。実装がより少ない。
+双対セグ木。
 ## コンストラクタ
 ```cpp
-1. CommutativeDualSegmentTree<F, composition, id>(int n)
-2. CommutativeDualSegmentTree<F, composition, id>(vector<F> f)
+1. DualSegmentTree<F, composition, id>(int n)
+2. DualSegmentTree<F, composition, id>(vector<F> f)
 ```
 * 作用素の型 `F`
 * 作用素の合成 $f\circ g$ を返す関数 `F composition(F f, F g)`
