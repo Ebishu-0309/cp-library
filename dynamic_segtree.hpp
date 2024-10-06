@@ -7,8 +7,22 @@ class DynamicSegtree {
     DynamicSegtree(long long lmin, long long rmax) : lmin(lmin), rmax(rmax), root(nullptr) {}
 
     void set(long long p, S x) { set(root, lmin, rmax, p, x); }
+
     S get(long long p) { return get(root, lmin, rmax, p); }
+
     S prod(long long l, long long r) { return prod(root, lmin, rmax, l, r); }
+
+    template <class F>
+    long long max_right(long long l, F f) {
+        S sm = e();
+        return max_right(root, lmin, rmax, l, f, sm);
+    }
+
+    template <class F>
+    long long min_left(long long r, F f) {
+        S sm = e();
+        return min_left(root, lmin, rmax, r, f, sm);
+    }
 
    private:
     struct Node;
@@ -55,5 +69,37 @@ class DynamicSegtree {
         if (l <= a && b <= r) return t->val;
         long long c = (a + b) >> 1;
         return op(prod(t->l, a, c, l, r), prod(t->r, c, b, l, r));
+    }
+
+    // test: [a, b)
+    // sm: f(sm) = true
+    template <class F>
+    long long max_right(const Node_t &t, long long a, long long b, long long l, F f, S &sm) {
+        if (t == nullptr || b <= l) return rmax;
+        if (l <= a && f(op(sm, t->val))) {
+            sm = op(sm, t->val);
+            return rmax;  // f(op[l, b)) = true
+        }
+        if (a + 1 == b) return a;  // f(op(sm, dat[a])) = false
+        long long c = (a + b) >> 1;
+        long long l_test = max_right(t->l, a, c, l, f, sm);
+        if (l_test != rmax) return l_test;
+        return max_right(t->r, c, b, l, f, sm);
+    }
+
+    // test: [a, b)
+    // sm: f(sm) = true
+    template <class F>
+    long long min_left(const Node_t &t, long long a, long long b, long long r, F f, S &sm) {
+        if (t == nullptr || r <= a) return lmin;
+        if (b <= r && f(op(t->val, sm))) {
+            sm = op(t->val, sm);
+            return lmin;  // f(op[a, r)) = true
+        }
+        if (a + 1 == b) return b;  // f(op(dat[b - 1], sm)) = false
+        long long c = (a + b) >> 1;
+        long long r_test = min_left(t->r, c, b, r, f, sm);
+        if (r_test != lmin) return r_test;
+        return min_left(t->l, a, c, r, f, sm);
     }
 };

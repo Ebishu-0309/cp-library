@@ -3,35 +3,33 @@
 #include "../template.hpp"
 
 #include "../dynamic_segtree.hpp"
+#include "../linear_function.hpp"
 
-struct S {
-    mint a, b;
-};
+using S = LinearFunction<mint>;
 S op(S f, S g) {  // g(f(x))
-    return S{g.a * f.a, g.a * f.b + g.b};
+    return g(f);
 }
-S e() { return S{1, 0}; }
 int main() {
     int n, q;
     cin >> n >> q;
-    DynamicSegtree<S, op, e> seg(0, n);
+    DynamicSegtree<S, op, S::id> seg(0, n);
     rep(i, n) {
-        int a, b;
-        cin >> a >> b;
-        seg.set(i, {mint::raw(a), mint::raw(b)});
+        S f;
+        cin >> f;
+        seg.set(i, f);
     }
     while (q--) {
         int t;
         cin >> t;
         if (t == 0) {
-            int p, c, d;
-            cin >> p >> c >> d;
-            seg.set(p, S{mint::raw(c), mint::raw(d)});
+            int p;
+            S f;
+            cin >> p >> f;
+            seg.set(p, f);
         } else {
             int l, r, x;
             cin >> l >> r >> x;
-            S f = seg.prod(l, r);
-            cout << (f.a * x + f.b).val() << "\n";
+            cout << seg.prod(l, r).calc(x) << "\n";
         }
     }
 }
