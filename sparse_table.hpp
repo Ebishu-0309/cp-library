@@ -22,6 +22,7 @@ class SparseTable {
     }
 
     S prod(int l, int r) const {
+        assert(0 <= l && l <= r && r <= n);
         const int k = log_table[r - l];
 
         return op(table[k][l], table[k][r - (1 << k)]);

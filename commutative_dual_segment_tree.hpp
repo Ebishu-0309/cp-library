@@ -14,6 +14,7 @@ class CommutativeDualSegmentTree {
     }
 
     F get(int p) {
+        assert(0 <= p && p <= n);
         F f = id();
         p += siz;
         for (int i = 0; i <= h; ++i) f = composition(act[p >> i], f);
@@ -21,6 +22,7 @@ class CommutativeDualSegmentTree {
     }
 
     void apply(int l, int r, F f) {
+        assert(0 <= l && l <= r && r <= n);
         if (l == r) return;
         l += siz;
         r += siz;

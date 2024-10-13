@@ -4,22 +4,33 @@ class DynamicSegtree {
     static_assert(std::is_convertible_v<decltype(e), std::function<S()>>, "e must work as S()");
 
    public:
-    DynamicSegtree(long long lmin, long long rmax) : lmin(lmin), rmax(rmax), root(nullptr) {}
+    DynamicSegtree(long long lmin, long long rmax) : lmin(lmin), rmax(rmax), root(nullptr) { assert(lmin <= rmax); }
 
-    void set(long long p, S x) { set(root, lmin, rmax, p, x); }
+    void set(long long p, S x) {
+        assert(lmin <= p && p <= rmax);
+        set(root, lmin, rmax, p, x);
+    }
 
-    S get(long long p) { return get(root, lmin, rmax, p); }
+    S get(long long p) {
+        assert(lmin <= p && p <= rmax);
+        return get(root, lmin, rmax, p);
+    }
 
-    S prod(long long l, long long r) { return prod(root, lmin, rmax, l, r); }
+    S prod(long long l, long long r) {
+        assert(lmin <= l && l <= r && r <= rmax);
+        return prod(root, lmin, rmax, l, r);
+    }
 
     template <class F>
     long long max_right(long long l, F f) {
+        assert(lmin <= l && l <= rmax);
         S sm = e();
         return max_right(root, lmin, rmax, l, f, sm);
     }
 
     template <class F>
     long long min_left(long long r, F f) {
+        assert(lmin <= r && r <= rmax);
         S sm = e();
         return min_left(root, lmin, rmax, r, f, sm);
     }

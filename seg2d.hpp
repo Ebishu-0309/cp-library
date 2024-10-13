@@ -39,6 +39,8 @@ class SegmentTree2D {
     }
 
     S prod(int i0, int j0, int i1, int j1) {
+        assert(0 <= i0 && i0 <= i1 && i1 <= h);
+        assert(0 <= j0 && j0 <= j1 && j1 <= w);
         i0 += h;
         i1 += h;
         S sl = e(), sr = e();

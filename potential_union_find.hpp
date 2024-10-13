@@ -4,6 +4,7 @@ class PotentialUnionFind {
     PotentialUnionFind(int n_) : n(n_), par(n_), d(n_) { iota(par.begin(), par.end(), 0); }
 
     int root(int i) {
+        assert(0 <= i && i < n);
         if (par[i] == i) return i;
         int p0 = root(par[i]);
         d[i] += d[par[i]];  // U[p0] - U[i] = (U[p0] - U[par[i]]) + (U[par[i]] - U[i])
@@ -12,6 +13,8 @@ class PotentialUnionFind {
 
     // U[i] - U[j] <- x
     bool unite(int i, int j, S x) {
+        assert(0 <= i && i < n);
+        assert(0 <= j && j < n);
         int r_i = root(i), r_j = root(j);
         if (r_i == r_j) return d[j] - d[i] == x;
         par[r_j] = r_i;
@@ -24,6 +27,8 @@ class PotentialUnionFind {
 
     // U[i] - U[j]
     optional<S> delta(int i, int j) {
+        assert(0 <= i && i < n);
+        assert(0 <= j && j < n);
         int r_i = root(i), r_j = root(j);
         if (r_i != r_j) return nullopt;
         return d[j] - d[i];
