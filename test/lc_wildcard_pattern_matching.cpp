@@ -1,4 +1,4 @@
-// competitive-verifier: PROBLEM https://judge.yosupo.jp/problem/binomial_coefficient
+// competitive-verifier: PROBLEM https://judge.yosupo.jp/problem/wildcard_pattern_matching
 
 #include "../template.hpp"
 #include "../wildcard_pattern_matching.hpp"
