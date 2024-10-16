@@ -239,7 +239,7 @@ template <class T>
 concept Container = requires(const T &v) {
     v.begin();
     v.end();
-};
+} && !is_same_v<T, string>;
 template <Container T>
 inline istream &operator>>(istream &is, T &v) {
     for (auto &e : v) is >> e;
