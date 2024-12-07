@@ -5,6 +5,7 @@
 #include <climits>
 #include <cmath>
 #include <complex>
+#include <cstring>
 #include <deque>
 #include <functional>
 #include <iomanip>
@@ -223,7 +224,7 @@ inline istream &operator>>(istream &is, pair<T, U> &rhs) {
 }
 template <typename T>
 inline istream &operator>>(istream &is, complex<T> &c) {
-    double real, imag;
+    T real, imag;
     is >> real >> imag;
     c.real(real);
     c.imag(imag);
@@ -253,7 +254,7 @@ inline ostream &operator<<(ostream &os, const T &v) {
     }
     return os;
 }
-#elif
+#else
 template <typename T>
 inline istream &operator>>(istream &is, vector<T> &v) {
     for (auto &e : v) is >> e;
@@ -438,13 +439,13 @@ vector<T> compressed(vector<T> v) {
     return v;
 }
 
-class Factring {
+class Sieve {
    private:
     const int max_n;
     vector<int> sieve;
 
    public:
-    explicit Factring(int max_n) : max_n(max_n), sieve(max_n + 1) {
+    explicit Sieve(int max_n) : max_n(max_n), sieve(max_n + 1) {
         iota(sieve.begin(), sieve.end(), 0);
 
         for (int i = 2; i * i <= max_n; ++i) {
@@ -457,12 +458,24 @@ class Factring {
     }
 
     unordered_map<int, int> calc(int x) const {
+        assert(x <= max_n);
         unordered_map<int, int> res;
         while (x > 1) {
             ++res[sieve[x]];
             x /= sieve[x];
         }
         return res;
+    }
+
+    vector<int> enumerate_prime(int x) const {
+        assert(x <= max_n);
+        vector<int> primes;
+        for (int i = 2; i <= x; ++i) {
+            if (sieve[i] == i) {
+                primes.push_back(i);
+            }
+        }
+        return primes;
     }
 };
 
@@ -599,4 +612,123 @@ class BinaryIndexedTree {
     }
 };
 
+template <class F, auto composition, auto id>
+class DualSegmentTree {
+    static_assert(is_convertible_v<decltype(composition), function<F(F, F)>>, "composition must work as F(F, F)");
+    static_assert(is_convertible_v<decltype(id), function<F()>>, "id must work as F()");
+
+   public:
+    DualSegmentTree() : DualSegmentTree(0) {}
+    explicit DualSegmentTree(int n) : DualSegmentTree(vector<F>(n, id())) {}
+    explicit DualSegmentTree(vector<F> f) : n(int(f.size())) {
+        h = ceil_log2(n);
+        siz = (1 << h);
+        act = vector<F>(2 * siz, id());
+        copy(f.begin(), f.end(), act.begin() + siz);
+    }
+
+    F get(int p) {
+        F f = id();
+        p += siz;
+        for (int i = 0; i <= h; ++i) f = composition(act[p >> i], f);
+        return f;
+    }
+
+    void apply(int l, int r, F f) {
+        if (l == r) return;
+        l += siz;
+        r += siz;
+
+        for (int i = h; i >= 1; --i) {
+            if (((l >> i) << i) != l) push(l >> i);
+            if (((r >> i) << i) != r) push((r - 1) >> i);
+        }
+
+        while (l < r) {
+            if (l & 1) apply(l++, f);
+            if (r & 1) apply(--r, f);
+            l >>= 1;
+            r >>= 1;
+        }
+    }
+
+   private:
+    int n, h, siz;
+    vector<F> act;
+
+    void apply(int k, F f) { act[k] = composition(f, act[k]); }
+    void push(int k) {
+        apply(2 * k, act[k]);
+        apply(2 * k + 1, act[k]);
+        act[k] = id();
+    }
+
+    int ceil_log2(int x) {
+        int res = 0;
+        while ((1 << res) < x) ++res;
+        return res;
+    }
+};
+
 constexpr int msb(long long x) { return 63 - countl_zero(static_cast<uint64_t>(x)); }
+
+template <typename Cost = int>
+struct Tree {
+    int n;
+    vector<vector<pair<int, Cost>>> g;
+    vector<int> in, out, ord_inv, par;
+    vector<unsigned int> es;
+    vector<Cost> depth;
+    bool built = false;
+
+    explicit Tree(int n) : n(n), g(n), in(n), out(n), ord_inv(2 * n), par(n), es(2 * n), depth(n) {}
+
+    void read(bool weighted = false, int offset = 1) {
+        built = false;
+        for (int i = 0; i < n - 1; ++i) {
+            if (weighted) {
+                int u, v;
+                Cost c;
+                cin >> u >> v >> c;
+                add_edge(u, v, c, offset);
+            } else {
+                int u, v;
+                cin >> u >> v;
+                add_edge(u, v, 1, offset);
+            }
+        }
+    }
+
+    void add_edge(int u, int v, Cost cost = 1, int offset = 0) {
+        built = false;
+        u -= offset;
+        v -= offset;
+        g[u].emplace_back(v, cost);
+        g[v].emplace_back(u, cost);
+    }
+
+    void build() {
+        if (built) return;
+        built = true;
+        int ord_index = 0;
+        dfs(0, ord_index, 0);
+    }
+
+    void dfs(int u, int &ord_index, int p) {
+        ord_inv[ord_index] = u;
+        es[ord_index] = u;
+        par[u] = p;
+        in[u] = ord_index++;
+        for (auto [v, c] : g[u]) {
+            if (v != p) {
+                depth[v] = depth[u] + c;
+                dfs(v, ord_index, u);
+            }
+        }
+        ord_inv[ord_index] = u;
+        es[ord_index] = ~u;
+        out[u] = ord_index++;
+    }
+};
+
+int main() {}
