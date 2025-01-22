@@ -21,15 +21,17 @@ class CommutativeDualSegmentTree {
         return f;
     }
 
-    void apply(int l, int r, F f) {
+    void apply(int k, F f) { apply(k, k + 1, f); }
+
+    void apply_inner(int l, int r, F f) {
         assert(0 <= l && l <= r && r <= n);
         if (l == r) return;
         l += siz;
         r += siz;
 
         while (l < r) {
-            if (l & 1) apply(l++, f);
-            if (r & 1) apply(--r, f);
+            if (l & 1) apply_inner(l++, f);
+            if (r & 1) apply_inner(--r, f);
             l >>= 1;
             r >>= 1;
         }
@@ -39,7 +41,7 @@ class CommutativeDualSegmentTree {
     int n, h, siz;
     vector<F> act;
 
-    void apply(int k, F f) { act[k] = composition(f, act[k]); }
+    void apply_inner(int k, F f) { act[k] = composition(f, act[k]); }
 
     int ceil_log2(int x) {
         int res = 0;
