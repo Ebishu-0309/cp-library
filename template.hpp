@@ -411,9 +411,11 @@ lint modinv(lint a, lint m = Mod) {
     if (u < 0) u += m;
     return u;
 }
-lint modpow(lint x, lint n, lint m = Mod) {
+
+template <typename T>
+T modpow(T x, T n, T m = Mod) {
     if (m == 1) return 0;
-    lint res = 1;
+    T res = 1;
     x %= m;
     if (x < 0) x += m;
     while (n > 0) {
@@ -423,8 +425,10 @@ lint modpow(lint x, lint n, lint m = Mod) {
     }
     return res;
 }
-lint intpow(lint x, lint n) {
-    lint res = 1;
+
+template <typename T>
+T intpow(T x, T n) {
+    T res = 1;
     while (n > 0) {
         if (n & 1) res *= x;
         x *= x;
