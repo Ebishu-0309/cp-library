@@ -23,7 +23,7 @@ class CommutativeDualSegmentTree {
 
     void apply(int k, F f) { apply(k, k + 1, f); }
 
-    void apply_inner(int l, int r, F f) {
+    void apply(int l, int r, F f) {
         assert(0 <= l && l <= r && r <= n);
         if (l == r) return;
         l += siz;
