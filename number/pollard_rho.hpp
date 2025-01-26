@@ -1,5 +1,6 @@
 #include "miller_rabin.hpp"
 
+// n must not be prime
 long long find_prime_factor(long long n) {
     for (long long c = n - 1; c >= 1; --c) {
         auto f = [=](long long x) { return (__int128_t(x) * x + c) % n; };
