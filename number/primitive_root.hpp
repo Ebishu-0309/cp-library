@@ -3,6 +3,7 @@
 long long primitive_root(long long p) {
     if (p == 2) return 1;
     if (p == 3) return 2;
+    if (p == 5) return 2;
 
     assert(is_prime(p));
 
@@ -21,7 +22,16 @@ long long primitive_root(long long p) {
             m /= pi;
         }
     }
-    for (long long g = 2;; ++g) {
+
+    long long g = 2;
+    for (long long i = 2;; ++i) {
+        if (p > 1000) {
+            g = splitmix64(i) % p;
+            if (g == 0) continue;
+        } else {
+            g = i;
+        }
+
         bool is = true;
         for (long long e : es) {
             __int128_t po = 1, ge = g;
