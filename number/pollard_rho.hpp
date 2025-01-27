@@ -4,10 +4,10 @@
 // n must not be prime
 long long find_prime_factor(long long n) {
     constexpr int m = 200;
-    long long c = 1;
-    while (true) {
-        c = splitmix64(c) % n;
+    for (long long c_i = 1;; ++c_i) {
+        long long c = splitmix64(c_i) % n;
         if (c == 0) continue;
+
         auto f = [=](long long x) { return (__int128_t(x) * x + c) % n; };
         long long x = 0, y = 0, y_b = 0, q = 1;
         long long g = 1;
