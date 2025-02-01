@@ -1,29 +1,7 @@
+#include "bit_vector.hpp"
+
 template <typename T>
 class CompressedWaveletMatrix {
-    class BitVector {
-        int b;
-        vector<uint64_t> bit;
-        vector<uint32_t> sum;
-
-       public:
-        BitVector() = default;
-        BitVector(int n) : b((n + 63) >> 6) {
-            bit.assign(b, 0ull);
-            sum.assign(b, 0u);
-        }
-
-        void set(int p) { bit[p >> 6] |= 1ull << (p & 63); }
-        bool operator[](int p) { return bit[p >> 6] >> (p & 63) & 1; }
-
-        void build() {
-            for (int i = 1; i < b; ++i) sum[i] = sum[i - 1] + __builtin_popcountll(bit[i - 1]);
-        }
-
-        int rank1(int p) { return sum[p >> 6] + __builtin_popcountll(bit[p >> 6] & ~(0xffffffffffffffffull << (p & 63))); }
-        int rank0(int p) { return p - rank1(p); }
-        int rank(int p, bool b) { return b ? rank1(p) : rank0(p); }
-    };
-
     class WaveletMatrix {
         int n, ma, lg;
         vector<BitVector> bits;
@@ -37,7 +15,7 @@ class CompressedWaveletMatrix {
             while ((1 << lg) < ma + 1) ++lg;
             bits.assign(lg, n + 1);
             mid.resize(lg);
-            vector<int> l(n), r(n);  // ソート用
+            vector<int> l(n), r(n);  // for sort
             for (int i = lg - 1; i >= 0; --i) {
                 int li = 0, ri = 0;
                 for (int j = 0; j < n; ++j) {
@@ -140,12 +118,10 @@ class CompressedWaveletMatrix {
     }
     int count(T x, int l, int r) { return count(x, r) - count(x, l); }
 
-    // 昇順で k (0-indexed) 番目
-    // k=0 のとき min
+    // k=0: min
     T kth_smallest(int l, int r, int k) { return y[wm.kth_smallest(l, r, k)]; }
 
-    // 降順で k(0-indexed) 番目
-    // k=0 のとき max
+    // k=0: max
     T kth_largest(int l, int r, int k) { return y[wm.kth_largest(l, r, k)]; }
 
     int range_freq(int l, int r, T upper) { return wm.range_freq(l, r, get(upper)); }
