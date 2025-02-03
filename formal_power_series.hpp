@@ -415,20 +415,28 @@ struct FormalPowerSeries : public vector<atcoder::static_modint<MOD>> {
         return prod(fs);
     }
 
-    // O(sqrt(MOD) log^2 MOD)
+    // pre: O(sqrt(MOD) log^2 MOD)
+    // O(sqrt(MOD))
     static Fp factorial(long long n) {
         if (n >= MOD) return 0;
         static constexpr int v = 1 << 15;  // v * v >= MOD
-        static vector<int> b(v);
-        iota(b.begin(), b.end(), 1);
-        static const F f = prod(vector<int>(v, 1), b);  // prod_1^v (x + i)
+        static vector<Fp> ps(v + 1);       // ps[i] = prod_1^{iv} j
 
+        static bool init = false;
+        if (!init) {
+            init = true;
+            vector<int> k(v);
+            iota(k.begin(), k.end(), 1);
+            const F f = prod(vector<int>(v, 1), k);  // (x+1)(x+2)...(x+v)
+            vector<int> xs(v);
+            for (int i = 0; i < v; ++i) xs[i] = v * i;
+            vector<Fp> es = f.eval(xs);
+            ps[0] = 1;
+            for (int i = 0; i < v; ++i) ps[i + 1] = ps[i] * es[i];
+        }
         const int m = min<int>(v, (n + 1) / v);
-        vector<int> xs(m);
-        for (int i = 0; i < m; ++i) xs[i] = v * i;
 
-        Fp p = 1;
-        for (const auto e : f.eval(xs)) p *= e;
+        Fp p = ps[m];
         for (int i = m * v + 1; i <= n; ++i) p *= i;
         return p;
     }
