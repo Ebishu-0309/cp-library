@@ -354,11 +354,11 @@ struct FormalPowerSeries : public vector<atcoder::static_modint<MOD>> {
 
     // a.size() = n, c.size() = n + m - 1
     // res[j] = sum a[i] * c[i + j] (0 <= j < m)
-    static vector<Fp> middle_product(vector<mint> a, vector<mint> c) {
+    static vector<Fp> middle_product(vector<Fp> a, vector<Fp> c, bool c_reversed = false, bool b_reversed = false) {
         int n = a.size(), m = c.size() + 1 - n;
         if (m <= 0) return {};
-        if (min(n, m) <= 60) return middle_product_naive(a, c);
-        return middle_product_fft(a, c);
+        if (min(n, m) <= 60) return middle_product_naive(a, c, c_reversed, b_reversed);
+        return middle_product_fft(a, c, c_reversed, b_reversed);
     }
 
     template <typename U>
@@ -384,18 +384,17 @@ struct FormalPowerSeries : public vector<atcoder::static_modint<MOD>> {
         vector<Fp> f(*this);
         f.resize(n + m1 - 1);
 
-        vector<Fp> a = middle_product(t1, f);
-        reverse(a.begin(), a.end());
+        vector<Fp> a = middle_product(t1, f, false, false);
 
         vector b(2 * m, vector<Fp>{});
         b[1] = a;
 
         for (int i = 1; i < m; ++i) {
-            b[i << 1 | 1] = middle_product(t[i << 1], b[i]);
-            b[i << 1] = middle_product(t[i << 1 | 1], b[i]);
+            b[i << 1 | 1] = middle_product(t[i << 1], b[i], true, true);
+            b[i << 1] = middle_product(t[i << 1 | 1], b[i], true, true);
         }
 
-        vector<mint> res(m1);
+        vector<Fp> res(m1);
         for (int i = m; i < m + m1; ++i) res[i - m] = b[i][0];
 
         return res;
@@ -455,9 +454,9 @@ struct FormalPowerSeries : public vector<atcoder::static_modint<MOD>> {
     // dft.size() == 2 * n, dft[0 : n] = DFT(f)
     // dft <- DFT(f + [0] * n)
     // time complexity: FFT(n)
-    static void fft_doubling(vector<mint> &dft, vector<mint> f, const mint r_2n) {
+    static void fft_doubling(vector<Fp> &dft, vector<Fp> f, const Fp r_2n) {
         const int n = dft.size() >> 1;
-        mint rp = 1;
+        Fp rp = 1;
         for (auto &e : f) {
             e *= rp;
             rp *= r_2n;
@@ -469,13 +468,13 @@ struct FormalPowerSeries : public vector<atcoder::static_modint<MOD>> {
     // dft.size() == 2 * n
     // dft <- DFT(IDFT(dft[0 : n]) + [0] * n)
     // time complexity: 2 FFT(n)
-    static void fft_doubling(vector<mint> &dft, const mint r, const mint n_inv) {
+    static void fft_doubling(vector<Fp> &dft, const Fp r, const Fp n_inv) {
         const int n = dft.size() >> 1;
 
-        vector<mint> b(n);
+        vector<Fp> b(n);
         copy(dft.begin(), dft.begin() + n, b.begin());
         atcoder::internal::butterfly_inv(b);
-        mint rp = 1;
+        Fp rp = 1;
         for (auto &e : b) {
             e *= rp * n_inv;
             rp *= r;
@@ -496,8 +495,8 @@ struct FormalPowerSeries : public vector<atcoder::static_modint<MOD>> {
         atcoder::internal::butterfly(q);
 
         const int w = __builtin_ctz((unsigned int)(n));
-        const mint n_inv = mint::raw(n).inv();
-        const mint r_z = info.root[w + 1];
+        const Fp n_inv = Fp::raw(n).inv();
+        const Fp r_z = info.root[w + 1];
         const Fp ir_z = info.iroot[w + 1];
 
         vector<int> bit_reverse(n);
@@ -541,19 +540,22 @@ struct FormalPowerSeries : public vector<atcoder::static_modint<MOD>> {
         return coeff(p, q, k);
     }
 
-    static vector<Fp> middle_product_naive(vector<mint> a, vector<mint> c) {
+    static vector<Fp> middle_product_naive(vector<Fp> a, vector<Fp> c, bool c_reversed = false, bool b_reversed = false) {
+        if (c_reversed) reverse(c.begin(), c.end());
         int n = a.size(), m = c.size() + 1 - n;
-        vector<mint> b(m);
+        vector<Fp> b(m);
         for (int i = 0; i < n; ++i) {
             for (int j = 0; j < m; ++j) {
                 b[j] += a[i] * c[i + j];
             }
         }
+        if (b_reversed) reverse(b.begin(), b.end());
         return b;
     }
-    static vector<Fp> middle_product_fft(vector<mint> a, vector<mint> c) {
+
+    static vector<Fp> middle_product_fft(vector<Fp> a, vector<Fp> c, bool c_reversed = false, bool b_reversed = false) {
         int n = a.size(), m = c.size() + 1 - n;
-        reverse(c.begin(), c.end());
+        if (!c_reversed) reverse(c.begin(), c.end());
 
         int z = atcoder::internal::bit_ceil((unsigned int)(n + m));
         a.resize(z), c.resize(z);
@@ -562,8 +564,8 @@ struct FormalPowerSeries : public vector<atcoder::static_modint<MOD>> {
         atcoder::internal::butterfly_inv(a);
         a.resize(n + m - 1);
         a.erase(a.begin(), a.begin() + n - 1);
-        reverse(a.begin(), a.end());
-        const mint iz = mint(z).inv();
+        if (!b_reversed) reverse(a.begin(), a.end());
+        const Fp iz = Fp::raw(z).inv();
         for (auto &e : a) e *= iz;
         return a;
     }
