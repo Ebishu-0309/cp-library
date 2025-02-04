@@ -499,11 +499,13 @@ struct FormalPowerSeries : public vector<atcoder::static_modint<MOD>> {
         const Fp r_z = info.root[w + 1];
         const Fp ir_z = info.iroot[w + 1];
 
-        vector<int> bit_reverse(n);
-        vector<Fp> ir_p(n);
+        vector<Fp> ir_p(n, 1);
         for (int i = 0; i < n; ++i) {
-            bit_reverse[i] = (bit_reverse[i >> 1] >> 1) | ((i & 1) << (w - 1));
-            ir_p[i] = ir_z.pow(bit_reverse[i]);
+            Fp ir_z_p = ir_z;
+            for (int j = w - 1; j >= 0; --j) {
+                if (i >> j & 1) ir_p[i] *= ir_z_p;
+                ir_z_p *= ir_z_p;
+            }
         }
 
         Fp inv2_p = 1;
@@ -521,13 +523,18 @@ struct FormalPowerSeries : public vector<atcoder::static_modint<MOD>> {
             fft_doubling(q, r_z, n_inv);
 
             k >>= 1;
+            if (k < 2 * n) break;
         }
+        atcoder::internal::butterfly_inv(p);
+        atcoder::internal::butterfly_inv(q);
 
-        Fp p0 = 0, q0 = 0;
-        for (auto e : p) p0 += e;
-        for (auto e : q) q0 += e;
+        F f_q(q);
+        f_q = f_q.inv(k + 1);
 
-        return inv2_p * p0 / q0;
+        Fp conv = 0;
+        for (int i = 0; i <= k; ++i) conv += p[i] * f_q[k - i];
+
+        return inv2_p * conv;
     }
 
     static Fp kth_term(const vector<Fp> &a, const vector<Fp> &c, long long k) {
