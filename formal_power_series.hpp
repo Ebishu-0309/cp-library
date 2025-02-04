@@ -352,8 +352,18 @@ struct FormalPowerSeries : public vector<atcoder::static_modint<MOD>> {
     }
     F pow(long long m, int d = -1) const { return F(*this).pow_inplace(m, d); }
 
+    // a.size() = n, c.size() = n + m - 1
+    // res[j] = sum a[i] * c[i + j] (0 <= j < m)
+    static vector<Fp> middle_product(vector<mint> a, vector<mint> c) {
+        int n = a.size(), m = c.size() + 1 - n;
+        if (m <= 0) return {};
+        if (min(n, m) <= 60) return middle_product_naive(a, c);
+        return middle_product_fft(a, c);
+    }
+
     template <typename U>
     vector<Fp> eval(const vector<U> &x) const {
+        const int n = this->size();
         const int m1 = x.size();
 
         if (m1 == 1) return {eval(x[0])};
@@ -361,31 +371,32 @@ struct FormalPowerSeries : public vector<atcoder::static_modint<MOD>> {
         int m = 1;
         while (m < m1) m <<= 1;
 
-        vector<F> subproducts(2 * m, F{1});
-
+        vector t(2 * m, vector<Fp>{1});
         for (int i = m; i < m + m1; ++i) {
-            subproducts[i].resize(2);
-            subproducts[i][0] = -x[i - m];
-            subproducts[i][1] = 1;
+            t[i].resize(2);
+            t[i][0] = -x[i - m];
+            t[i][1] = 1;
         }
+        for (int i = m - 1; i >= 1; --i) t[i] = atcoder::convolution(t[i << 1], t[i << 1 | 1]);
 
-        for (int i = m - 1; i > 1; --i) {
-            subproducts[i] = subproducts[i << 1] * subproducts[i << 1 | 1];
-        }
+        F t1 = F(t[1]).rev().inv(n);
 
-        vector<F> rem(2 * m);
-        rem[1] = *this;
+        vector<Fp> f(*this);
+        f.resize(n + m1 - 1);
+
+        vector<Fp> a = middle_product(t1, f);
+        reverse(a.begin(), a.end());
+
+        vector b(2 * m, vector<Fp>{});
+        b[1] = a;
 
         for (int i = 1; i < m; ++i) {
-            rem[i << 1] = rem[i] % subproducts[i << 1];
-            rem[i << 1 | 1] = rem[i] % subproducts[i << 1 | 1];
+            b[i << 1 | 1] = middle_product(t[i << 1], b[i]);
+            b[i << 1] = middle_product(t[i << 1 | 1], b[i]);
         }
 
-        vector<Fp> res(m1);
-
-        for (int i = 0; i < m1; ++i) {
-            if (!rem[i + m].empty()) res[i] = rem[i + m][0];
-        }
+        vector<mint> res(m1);
+        for (int i = m; i < m + m1; ++i) res[i - m] = b[i][0];
 
         return res;
     }
@@ -528,6 +539,33 @@ struct FormalPowerSeries : public vector<atcoder::static_modint<MOD>> {
         vector<Fp> p = atcoder::convolution(a, q);
         p.resize(d);
         return coeff(p, q, k);
+    }
+
+    static vector<Fp> middle_product_naive(vector<mint> a, vector<mint> c) {
+        int n = a.size(), m = c.size() + 1 - n;
+        vector<mint> b(m);
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < m; ++j) {
+                b[j] += a[i] * c[i + j];
+            }
+        }
+        return b;
+    }
+    static vector<Fp> middle_product_fft(vector<mint> a, vector<mint> c) {
+        int n = a.size(), m = c.size() + 1 - n;
+        reverse(c.begin(), c.end());
+
+        int z = atcoder::internal::bit_ceil((unsigned int)(n + m));
+        a.resize(z), c.resize(z);
+        atcoder::internal::butterfly(a), atcoder::internal::butterfly(c);
+        for (int i = 0; i < z; ++i) a[i] *= c[i];
+        atcoder::internal::butterfly_inv(a);
+        a.resize(n + m - 1);
+        a.erase(a.begin(), a.begin() + n - 1);
+        reverse(a.begin(), a.end());
+        const mint iz = mint(z).inv();
+        for (auto &e : a) e *= iz;
+        return a;
     }
 };
 
