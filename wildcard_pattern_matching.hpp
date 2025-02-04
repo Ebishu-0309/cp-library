@@ -1,5 +1,9 @@
+#include "formal_power_series.hpp"
+
 vector<bool> wildcard_pattern_matching(string s, string word, char wild = '*') {
     int n = s.size(), m = word.size();
+    if (n < m) return {};
+
     vector<mint> s1(n), s2(n), s3(n);
     rep(i, n) {
         s3[i] = (s[i] != wild);
@@ -12,18 +16,13 @@ vector<bool> wildcard_pattern_matching(string s, string word, char wild = '*') {
         t2[i] = (word[i] - 'a') * t1[i];
         t3[i] = (word[i] - 'a') * (word[i] - 'a') * t1[i];
     }
-    reverse(all(s1));
-    reverse(all(s2));
-    reverse(all(s3));
 
-    auto c1 = convolution(s1, t1);
-    auto c2 = convolution(s2, t2);
-    auto c3 = convolution(s3, t3);
+    auto c1 = FPS::middle_product(t1, s1);
+    auto c2 = FPS::middle_product(t2, s2);
+    auto c3 = FPS::middle_product(t3, s3);
 
     vector<bool> ans(n - m + 1);
-    for (int k = 0; k <= n - m; ++k) {
-        mint prod = c1[n - 1 - k] - 2 * c2[n - 1 - k] + c3[n - 1 - k];
-        ans[k] = (prod == 0);
-    }
+    for (int k = 0; k <= n - m; ++k) ans[k] = (c1[k] - 2 * c2[k] + c3[k] == 0);
+
     return ans;
 }
