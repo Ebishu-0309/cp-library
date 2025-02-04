@@ -441,48 +441,66 @@ struct FormalPowerSeries : public vector<atcoder::static_modint<MOD>> {
         return p;
     }
 
-    static void coeff_sub(vector<mint> &a, bool odd) {
-        const int n = a.size();
-        for (int i = odd; i < n; i += 2) a[i >> 1] = a[i];
-        a.resize((n + !odd) >> 1);
+    static void fft_doubling(vector<mint> &dft, const mint r, const mint n_inv) {
+        const int n = dft.size() >> 1;
+
+        vector<mint> b(n);
+        copy(dft.begin(), dft.begin() + n, b.begin());
+        atcoder::internal::butterfly_inv(b);
+        mint rp = 1;
+        for (auto &e : b) {
+            e *= rp * n_inv;
+            rp *= r;
+        }
+        atcoder::internal::butterfly(b);
+        copy(b.begin(), b.end(), dft.begin() + n);
     }
 
-    static constexpr unsigned int coeff_bitceil(int n) { return atcoder::internal::bit_ceil((unsigned int)(2 * n - 1)); }
-
-    // [x^k] (p/q)
+    // [x^k] (p/q) (deg p < deg q)
     static Fp coeff(vector<mint> p, vector<mint> q, long long k) {
-        vector<mint> q_dft;
-        {
-            const int n0 = q.size();
-            p.resize(n0);
-            const int z = coeff_bitceil(n0);
-            p.resize(z);
-            q.resize(z);
-            q_dft = q;
-            atcoder::internal::butterfly(q_dft);
+        static const atcoder::internal::fft_info<mint> info;
+        static const mint inv2 = mint::raw((mint::mod() + 1) / 2);
+
+        const int n = atcoder::internal::bit_ceil((unsigned int)(q.size()));
+
+        p.resize(2 * n), q.resize(2 * n);
+        atcoder::internal::butterfly(p);
+        atcoder::internal::butterfly(q);
+
+        const int w = __builtin_ctz((unsigned int)(n));
+        const mint n_inv = mint::raw(n).inv();
+        const mint r_z = info.root[w + 1];
+        const mint ir_z = info.iroot[w + 1];
+
+        vector<int> bit_reverse(n);
+        vector<mint> ir_p(n);
+        for (int i = 0; i < n; ++i) {
+            bit_reverse[i] = (bit_reverse[i >> 1] >> 1) | ((i & 1) << (w - 1));
+            ir_p[i] = ir_z.pow(bit_reverse[i]);
         }
+
+        mint inv2_p = 1;
         while (k > 0) {
-            const int n = q.size();
-            const int z = coeff_bitceil(n);
+            inv2_p *= inv2;
 
-            p.resize(z);
-            q.resize(z);
-            atcoder::internal::butterfly(p);
-            atcoder::internal::butterfly(q);
+            if (k & 1) {
+                for (int i = 0; i < n; ++i) p[i] = ir_p[i] * (p[i << 1] * q[i << 1 | 1] - p[i << 1 | 1] * q[i << 1]);
+            } else {
+                for (int i = 0; i < n; ++i) p[i] = p[i << 1] * q[i << 1 | 1] + p[i << 1 | 1] * q[i << 1];
+            }
+            for (int i = 0; i < n; ++i) q[i] = q[i << 1] * q[i << 1 | 1];
 
-            vector<mint> q_minus_dft = q;
-            for (int i = 0; i < z; ++i) p[i] *= q_minus_dft[i ^ 1], q[i] *= q_minus_dft[i ^ 1];
-            atcoder::internal::butterfly_inv(p);
-            atcoder::internal::butterfly_inv(q);
+            fft_doubling(p, r_z, n_inv);
+            fft_doubling(q, r_z, n_inv);
 
-            p.resize(2 * n - 1);
-            q.resize(2 * n - 1);
-
-            coeff_sub(p, k & 1);
-            coeff_sub(q, 0);
             k >>= 1;
         }
-        return p[0] / q[0];
+
+        mint p0 = 0, q0 = 0;
+        for (auto e : p) p0 += e;
+        for (auto e : q) q0 += e;
+
+        return inv2_p * p0 / q0;
     }
 
     static Fp kth_term(const vector<mint> &a, const vector<mint> &c, long long k) {
