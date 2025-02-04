@@ -441,6 +441,23 @@ struct FormalPowerSeries : public vector<atcoder::static_modint<MOD>> {
         return p;
     }
 
+    // dft.size() == 2 * n, dft[0 : n] = DFT(f)
+    // dft <- DFT(f + [0] * n)
+    // time complexity: FFT(n)
+    static void fft_doubling(vector<mint> &dft, vector<mint> f, const mint r_2n) {
+        const int n = dft.size() >> 1;
+        mint rp = 1;
+        for (auto &e : f) {
+            e *= rp;
+            rp *= r_2n;
+        }
+        atcoder::internal::butterfly(f);
+        copy(f.begin(), f.end(), dft.begin() + n);
+    }
+
+    // dft.size() == 2 * n
+    // dft <- DFT(IDFT(dft[0 : n]) + [0] * n)
+    // time complexity: 2 FFT(n)
     static void fft_doubling(vector<mint> &dft, const mint r, const mint n_inv) {
         const int n = dft.size() >> 1;
 
@@ -457,9 +474,9 @@ struct FormalPowerSeries : public vector<atcoder::static_modint<MOD>> {
     }
 
     // [x^k] (p/q) (deg p < deg q)
-    static Fp coeff(vector<mint> p, vector<mint> q, long long k) {
-        static const atcoder::internal::fft_info<mint> info;
-        static const mint inv2 = mint::raw((mint::mod() + 1) / 2);
+    static Fp coeff(vector<Fp> p, vector<Fp> q, long long k) {
+        static const atcoder::internal::fft_info<Fp> info;
+        static const Fp inv2 = Fp::raw((Fp::mod() + 1) / 2);
 
         const int n = atcoder::internal::bit_ceil((unsigned int)(q.size()));
 
@@ -470,16 +487,16 @@ struct FormalPowerSeries : public vector<atcoder::static_modint<MOD>> {
         const int w = __builtin_ctz((unsigned int)(n));
         const mint n_inv = mint::raw(n).inv();
         const mint r_z = info.root[w + 1];
-        const mint ir_z = info.iroot[w + 1];
+        const Fp ir_z = info.iroot[w + 1];
 
         vector<int> bit_reverse(n);
-        vector<mint> ir_p(n);
+        vector<Fp> ir_p(n);
         for (int i = 0; i < n; ++i) {
             bit_reverse[i] = (bit_reverse[i >> 1] >> 1) | ((i & 1) << (w - 1));
             ir_p[i] = ir_z.pow(bit_reverse[i]);
         }
 
-        mint inv2_p = 1;
+        Fp inv2_p = 1;
         while (k > 0) {
             inv2_p *= inv2;
 
@@ -496,23 +513,24 @@ struct FormalPowerSeries : public vector<atcoder::static_modint<MOD>> {
             k >>= 1;
         }
 
-        mint p0 = 0, q0 = 0;
+        Fp p0 = 0, q0 = 0;
         for (auto e : p) p0 += e;
         for (auto e : q) q0 += e;
 
         return inv2_p * p0 / q0;
     }
 
-    static Fp kth_term(const vector<mint> &a, const vector<mint> &c, long long k) {
+    static Fp kth_term(const vector<Fp> &a, const vector<Fp> &c, long long k) {
         const int d = a.size();
-        vector<mint> q(d + 1);
+        vector<Fp> q(d + 1);
         q[0] = 1;
         for (int i = 0; i < d; ++i) q[i + 1] = -c[i];
-        vector<mint> p = atcoder::convolution(a, q);
+        vector<Fp> p = atcoder::convolution(a, q);
         p.resize(d);
         return coeff(p, q, k);
     }
 };
+
 using FPS = FormalPowerSeries<Mod>;
 struct Comp {
     bool operator()(const FPS &a, const FPS &b) const { return a.size() > b.size(); }
