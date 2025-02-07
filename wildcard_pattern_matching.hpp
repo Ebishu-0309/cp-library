@@ -1,28 +1,33 @@
-#include "formal_power_series.hpp"
-
 vector<bool> wildcard_pattern_matching(string s, string word, char wild = '*') {
+    static mt19937 mt(random_device{}());
+    static uniform_int_distribution<int> dist(0, mint::mod() - 1);
+
     int n = s.size(), m = word.size();
     if (n < m) return {};
+    int z = atcoder::internal::bit_ceil((unsigned int)(n));
 
-    vector<mint> s1(n), s2(n), s3(n);
-    rep(i, n) {
-        s3[i] = (s[i] != wild);
-        s2[i] = (s[i] - 'a') * s3[i];
-        s1[i] = (s[i] - 'a') * (s[i] - 'a') * s3[i];
+    reverse(s.begin(), s.end());
+    vector<mint> t1(z), t2(z), s2(z);
+    for (int i = 0; i < m; ++i) {
+        if (word[i] != wild) {
+            const mint r = dist(mt);
+            t1[i] = r;
+            t2[i] = r * (word[i] - 'a');
+        }
     }
-    vector<mint> t1(m), t2(m), t3(m);
-    rep(i, m) {
-        t1[i] = (word[i] != wild);
-        t2[i] = (word[i] - 'a') * t1[i];
-        t3[i] = (word[i] - 'a') * (word[i] - 'a') * t1[i];
-    }
+    atcoder::internal::butterfly(t1);
+    atcoder::internal::butterfly(t2);
 
-    auto c1 = FPS::middle_product(t1, s1);
-    auto c2 = FPS::middle_product(t2, s2);
-    auto c3 = FPS::middle_product(t3, s3);
+    for (int i = 0; i < n; ++i) s2[i] = (s[i] == wild ? 0 : (s[i] - 'a'));
+    atcoder::internal::butterfly(s2);
+    for (int i = 0; i < z; ++i) t1[i] *= s2[i];
+    for (int i = 0; i < n; ++i) s2[i] = s[i] != wild;
+    atcoder::internal::butterfly(s2);
+    for (int i = 0; i < z; ++i) t1[i] -= t2[i] * s2[i];
+    atcoder::internal::butterfly_inv(t1);
 
     vector<bool> ans(n - m + 1);
-    for (int k = 0; k <= n - m; ++k) ans[k] = (c1[k] - 2 * c2[k] + c3[k] == 0);
+    for (int k = 0; k <= n - m; ++k) ans[k] = (t1[n - 1 - k] == 0);
 
     return ans;
 }
