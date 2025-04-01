@@ -12,7 +12,7 @@ class CompressedWaveletMatrix {
 
         WaveletMatrix(vector<int> v) : n(v.size()), ma(*max_element(v.begin(), v.end())) {
             lg = 0;
-            while ((1 << lg) < ma + 1) ++lg;
+            while ((1 << lg) <= ma + 1) ++lg;
             bits.assign(lg, n + 1);
             mid.resize(lg);
             vector<int> l(n), r(n);  // for sort
